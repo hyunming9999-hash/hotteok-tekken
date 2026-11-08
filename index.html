@@ -267,7 +267,7 @@ const SP={
 };
 SP.gorani.speed=3.9;SP.raccoon.speed=3.3;   // 너구리는 너무 느려서 조금 빠르게                                   // 고라니는 더 빠르다
 Object.assign(SP.boar,{meterRate:1/1.5,subNeed:2});    // 멧돼지: 필살기 게이지 1.5배 느림·보조기는 2번 맞히면
-SP.hotteok.spDesc='몸을 낮췄다가 턱을 딱딱 부딪치며 돌진해 세 번 물어뜯는다. 물린 상대는 2초간 마비. 돌진 중엔 맞아도 멈추지 않는다.';
+SP.hotteok.spDesc='몸을 낮췄다가 턱을 딱딱 부딪치며 돌진해 세 번 물어뜯는다. 물린 상대는 1.3초간 마비. 돌진 중엔 맞아도 멈추지 않는다.';
 SP.rabbit.spDesc+=' 아주 멀리 떨어져 있지 않으면 피할 수 없고, 맞은 상대는 멀리 날아간다.';
 SP.rabbit.subDesc='당근 세 개가 무조건 명중한다. 가까우면 약하고 멀리서 던질수록 세다.';
 SP.raccoon.spDesc+=' 당한 상대는 2초간 공격하지 못한다.';
@@ -279,7 +279,7 @@ Object.assign(SP.cat,{subNeed:2,spCost:50,meterRate:1.25,airAttack:true});   // 
 SP.cat.spDesc+=' 게이지 절반만 있으면 쓸 수 있어 가득 차면 두 번 쓴다. 또한 고양이만 점프 중에 물기·할퀴기로 덮칠 수 있다. 대신 한 대가 약하고 다 맞는다는 보장도 없다. 기력도 빨리 찬다.';
 SP.cat.subDesc+=' 2번 맞히면 쓸 수 있다.';
 /* 선택 화면용 짧은 설명 */
-const SHORT={hotteok:['돌진하며 3번 물기, 물리면 2초 마비','뒤돌아 똥 5발 · 사거리 안이면 무조건 명중, 멀수록 약함'],
+const SHORT={hotteok:['돌진하며 3번 물기, 물리면 1.3초 마비','뒤돌아 똥 5발 · 사거리 안이면 무조건 명중, 멀수록 약함'],
  rabbit:['높이 뛰어 내리찍기 · 맞으면 멀리 날아감','당근 3개 무조건 명중 · 멀리서 던질수록 셈'],
  raccoon:['연막 뒤 순간이동 기습 · 2초간 공격 봉인','멀리 굴러가 들이받기 · 막을 수 없고 상대 보조기 2칸·기력 40을 깎음'],
  cat:['앞으로 사라졌다 상대 코앞에 나타나 냥냥펀치 · 게이지 절반으로 2번, 한 대는 약함 · 유일하게 점프 중 물기·할퀴기 가능','헤어볼 3발 유도 · 가까울수록 셈 · 2번 맞히면'],
@@ -291,7 +291,7 @@ SP.cat.subDesc=SP.cat.subDesc.replace(' 2번 맞히면 쓸 수 있다.','')+' �
 SP.gorani.subDesc='뒤돌아 뒷발로 걷어찬다. 사정권(300px)이 넓어 꽤 떨어져 있어도 무조건 맞고, 맞은 상대는 2초간 기절한다.';
 SP.deer.subDesc='앞발을 들었다가 땅을 찍어 충격파를 낸다. 사정권 안이면 무조건 맞고, 맞은 상대는 2초간 기절한다.';
 SP.jjang=Object.assign({},SP.hotteok,{name:'짱이',title:'그늘의 진돗개',col:{base:'#2a211a',light:'#4a3a2a',dark:'#0d0907',belly:'#45382d',muzzle:'#8f8982',chin:'#d8d2c8',paw:'#b9b1a6',inner:'#8d6262',nose:'#0b0807'},pattern:'brindleDark',aura:'#d06a8e',
- spShort:'돌진하며 3번 물기, 물리면 2초 마비',subShort:'곧게 뻗는 긴 광선 · 막을 수 없음',sub:'beam',subName:'소리지르기 광선',subBtn:'광선',subDesc:'목청껏 짖어 곧은 광선을 쏜다. 사거리가 길고 막을 수 없다.',
+ spShort:'돌진하며 3번 물기, 물리면 1.3초 마비',subShort:'긴 광선 · 사정권(340px) 안이면 거의 다 맞음 · 2번 맞히면 · 막을 수 없음',sub:'beam',subName:'소리지르기 광선',subBtn:'광선',subDesc:'목청껏 짖어 광선을 쏜다. 쏘는 순간 상대를 겨누어 사정권(340px) 안이면 점프하지 않는 한 맞는다. 기본 공격 2번만 맞히면 쓸 수 있고 막을 수 없다.',subNeed:2,
  fact:'짱이는 호떡과 똑같이 생겼지만 털빛이 훨씬 어둡고 주둥이가 희끗하다. 짖는 소리는 호떡보다 크다.'});
 SP.poodle={name:'누리',title:'우비 입은 하얀 푸들',bodyW:84,bodyH:44,legLen:40,legW:12,neckDX:28,neckDY:-30,headW:44,headH:40,snoutL:17,snoutH:15,eyeR:5.8,noseR:4.6,
  col:{base:'#f3ebdf',light:'#fffaf1',dark:'#d9ccbb',belly:'#fff7ec',muzzle:'#f1e6d6',chin:'#fbf3e8',paw:'#efe4d4',inner:'#efc0c0',nose:'#1e1514'},
@@ -1380,7 +1380,7 @@ const SPECIALS={
  rush:{dur:48,start(f){say(f,'왈왈!');sfx('bark');f.dx=f.fx;f.dz=f.fz},
   update(f,o,st){if(st<10){f.vx*=.7;f.vz*=.7}else if(st<34){f.vx=f.dx*12;f.vz=f.dz*12;if((st-10)%7===0)f.hitDone=false;
     const ph=(st-10)%7;if(ph===4){sfx('bite');const m=fp(f,(reachPx(f,.9))*PX,.15);for(let i=0;i<3;i++)spark(m.x,m.y,m.z,'#ffffff')}   // 달리면서 턱을 딱딱 부딪친다
-    if(!f.hitDone&&f.hits<3&&ph>=3&&inReach(f,o,1)){f.hitDone=true;const last=f.hits===2;if(applyHit(f,o,VSM()?5:6,last?9:11.5,last?22:14,{color:'#ff8fb0',kx:f.dx,kz:f.dz,big:last,launch:last?5:0,status:{para:VSM()?60:120}})){f.hits++;const m=fp(o,0,.5);popText(m.x,m.y+.4,m.z,'콱!','#ffffff',26)}}
+    if(!f.hitDone&&f.hits<3&&ph>=3&&inReach(f,o,1)){f.hitDone=true;const last=f.hits===2;if(applyHit(f,o,VSM()?5:6,last?9:11.5,last?22:14,{color:'#ff8fb0',kx:f.dx,kz:f.dz,big:last,launch:last?5:0,status:{para:78}})){f.hits++;const m=fp(o,0,.5);popText(m.x,m.y+.4,m.z,'콱!','#ffffff',26)}}
     const q=fp(f,-.8,(Math.random()-.5)*.5,(Math.random()-.5)*.6);fire(q.x,q.y,q.z,Math.random()<.5?'#ff6f91':'#ffb36b');
     if(st%2){const w=fp(f,-1.5,(Math.random()-.5)*1.2);speedLine(w.x,w.y,w.z,f.fx,f.fz,'#ffd1dc')}
     if(st%4===0){const g=fp(f,-.6);dust(g.x,g.z)}}else{f.vx*=.8;f.vz*=.8}},
@@ -1540,8 +1540,9 @@ const SUBS={
  beam:{dur:40,start(f,o){face(f,o);f.pdx=f.fx;f.pdz=f.fz;say(f,'왈왈왈!!','#ffd1e6');sfx('charge')},
   update(f,o,st){f.vx*=.6;f.vz*=.6;
    if(st<12&&st%3===0){const q=fp(f,reachPx(f,.9)*PX,.1,(Math.random()-.5)*.5);spark(q.x,q.y,q.z,'#ffd1dc')}
-   if(st===12){sfx('beam');game.shake=Math.max(game.shake,8);const q=fp(f,reachPx(f,.95)*PX,.15);const b=makeBeam(5.6);b.position.set(q.x,q.y,q.z);b.rotation.y=Math.atan2(-f.pdz,f.pdx);beams.push({obj:b,t:0});for(let i=0;i<10;i++)spark(q.x,q.y,q.z,'#fff0f4')}
-   if(st>=12&&st<20&&!f.hitDone){const r=rel(f,o);if(r.along>0&&r.along<340&&r.perp<halfW(o)*.6+40&&Math.abs(o.y-f.y)<75){f.hitDone=true;applyHit(f,o,VSM()?12:11,9,22,{unblockable:true,big:true,color:'#ffd1dc',kx:f.pdx,kz:f.pdz})}}},
+   if(st===12){if(o.state!=='ko'&&!o.invis){face(f,o);f.pdx=f.fx;f.pdz=f.fz}sfx('beam');game.shake=Math.max(game.shake,8);const q=fp(f,reachPx(f,.95)*PX,.15);const b=makeBeam(5.6);   // 쏘는 순간 상대를 겨눈다
+b.position.set(q.x,q.y,q.z);b.rotation.y=Math.atan2(-f.pdz,f.pdx);beams.push({obj:b,t:0});for(let i=0;i<10;i++)spark(q.x,q.y,q.z,'#fff0f4')}
+   if(st>=12&&st<20&&!f.hitDone){if(dist2(f,o)<=340&&Math.abs(o.y-f.y)<75&&o.state!=='ko'&&!o.invis){f.hitDone=true;applyHit(f,o,VSM()?12:11,9,22,{unblockable:true,big:true,color:'#ffd1dc',kx:f.pdx,kz:f.pdz})}}},   // 사정권(340px) 안이면 점프 중이 아닌 한 맞는다
   pose(f,p,st){if(st<12){const k=st/12;p.lean=-.28*k;p.headRot=-.45*k;p.headDY=-8*k;p.mouth=.5*k;p.crouch=3*k}else if(st<24){p.lean=-.12+Math.sin(st*1.7)*.04;p.headDX=10;p.headRot=.1;p.mouth=1;p.eyes='squint';p.legs[0]=[.5,-.2];p.legs[2]=[.5,-.2];p.auto=false}else{const k=1-(st-24)/16;p.headDX=10*k;p.mouth=.6*k}}}
 };
 function startSub(f,o){const S=SUBS[f.sp.sub];f.sub=0;setState(f,'sub');f.atkId++;f.vx*=.3;f.vz*=.3;f.stun=0;f.invis=false;S.start(f,o)}
