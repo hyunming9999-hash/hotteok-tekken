@@ -1149,7 +1149,7 @@ const NET=(()=>{
   if(fresh){
    const prevState=f.state,prevSt=f.st,prevY=f.y,dmg=f.hp-hp;
    // 관찰한 변화 → 연출 (피해량은 상대 기기가 확정한 값)
-   if(state==='block'&&prevState!=='block'){const h=fp(f,halfW(f)*.5*PX,0);ring(h.x,h.y,h.z,'#8fd3ff',1.2);for(let i=0;i<6;i++)spark(h.x,h.y,h.z,'#bfe6ff');popText(h.x,h.y+.7,h.z,'막기','#bfe6ff',22);sfx('block');gainM(o,3);game.hitstop=3}
+   if(state==='block'&&prevState!=='block'){const h=fp(f,halfW(f)*.5*PX,0);ring(h.x,h.y,h.z,'#8fd3ff',1.2);for(let i=0;i<6;i++)spark(h.x,h.y,h.z,'#bfe6ff');popText(h.x,h.y+.7,h.z,'막기','#bfe6ff',22);sfx('block');game.hitstop=3}
    else if(dmg>.05&&(state!=='ko'||game.phase==='fight')){const h=fp(f,halfW(f)*.5*PX,0),arm=prevState==='sub'||prevState==='special',big=!arm&&dmg>=9,col=arm?'#ffffff':o.sp.aura;
     ring(h.x,h.y,h.z,col,big?2.4:arm?.9:1.4);if(!arm)star(h.x,h.y,h.z,big?1.3:.8);for(let i=0;i<(big?16:arm?4:10);i++)spark(h.x,h.y,h.z,i%2?'#fff4c2':col);popText(h.x,h.y+.8,h.z,'-'+Math.round(dmg),arm?'#d8d8d8':'#ffe08a',big?30:arm?20:24);
     sfx(big?'bighit':'hit');if(big)MUSIC.duck(.45,.35);if(!arm){game.hitstop=big?9:5;game.shake=Math.max(game.shake,big?15:7)}
@@ -1350,7 +1350,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  if(blocking&&o.push){setState(d,'block');d.stun=16;d.vx=kx*kb;d.vz=kz*kb;d.hp=Math.max(1,d.hp-dmg);popText(h.x,h.y+1.1,h.z,'-'+Math.round(dmg),'#ffe08a',20);const g=fp(d,0,-fCY(d)+.1);for(let i=0;i<8;i++)dust(g.x+(Math.random()-.5)*.8,g.z+(Math.random()-.5)*.8);ring(h.x,h.y,h.z,'#ffffff',1.6);popText(h.x,h.y+.7,h.z,'밀어냄','#fff2c8',22);sfx('push');game.hitstop=4;game.shake=Math.max(game.shake,5);return true}
  if(blocking){setState(d,'block');d.stun=12;d.vx=kx*kb*.8;d.vz=kz*kb*.8;d.hp=Math.max(1,d.hp-dmg*.15);
   ring(h.x,h.y,h.z,'#8fd3ff',1.2);for(let i=0;i<6;i++)spark(h.x,h.y,h.z,'#bfe6ff');popText(h.x,h.y+.7,h.z,'막기','#bfe6ff',22);
-  sfx('block');if(!o.basic)gainM(d,2.5);game.hitstop=3;return true}   // 막히면 공격자는 기력도 보조기도 못 얻는다. 막은 쪽은 기술을 막았을 때만 조금 찬다
+  sfx('block');game.hitstop=3;return true}   // 막히면 공격자는 기력도 보조기도 못 얻고, 막은 쪽도 기력이 차지 않는다
  const wasStun=d.state==='hit';
  a.combo=wasStun?a.combo+1:1;a.comboT=70;
  // 연타 보정: 맞는 중에 또 맞으면 경직이 점점 짧아지고, 기본 공격 4연타째엔 상대를 멀리 떨쳐내 숨 돌릴 틈을 준다
@@ -1361,7 +1361,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  if(breaker){d.breaker=30;const q=fp(d,0,1.1*d.sp.scale);popText(q.x,q.y+.4,q.z,'떨쳐냄!','#ffffff',24);shockwave(d.x*PX,d.z*PX,'#ffffff',2.2)}
  if(o.pull){const q=fp(d,0,1.0*d.sp.scale);popText(q.x,q.y+.3,q.z,'끌려옴!','#bfefff',22)}
  if(o.launch||!grounded){d.vy=-(o.launch||5);if(d.y>=0)d.y=-1}
- if(!o.noMeter)gainM(a,dmg*1.7);if(!o.basic)gainM(d,dmg*.45);if(o.drain)drainGauge(d);   // 맞는 쪽: 기본 공격에 맞으면 기력이 안 차고, 기술에 맞으면 예전의 절반만 찬다
+ if(!o.noMeter)gainM(a,dmg*1.7);gainM(d,dmg*.9);if(o.drain)drainGauge(d);
  game.hitstop=o.big?10:6;game.shake=Math.max(game.shake,o.big?20:10);if(localHuman(d)||localHuman(a))buzz(o.big?70:localHuman(d)?40:25);
  const col=o.color||a.sp.aura;
  ring(h.x,h.y,h.z,col,o.big?2.4:1.4);star(h.x,h.y,h.z,o.big?1.3:.8);for(let i=0;i<(o.big?16:10);i++)spark(h.x,h.y,h.z,i%2?'#fff4c2':col);
