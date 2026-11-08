@@ -1316,7 +1316,7 @@ const storyBossHp=()=>Math.round(STORY_HP[game.stage]*({low:.9,mid:1,high:1.15}[
 const VS_REACH={rabbit:1.5,poodle:1.4,cat:1.3,otter:1.2,raccoon:1.15,gorani:1.03,hotteok:1,jjang:1,deer:.88,boar:.8};
 const VSM=()=>game.mode!=='story';   // 대전 밸런스는 스토리 모드에 적용하지 않는다
 const reachMul=f=>game.mode==='story'?1:(VS_REACH[f.key]||1);
-const VS_HP={hotteok:100,jjang:100,poodle:100,rabbit:100,raccoon:105,cat:85,otter:95,gorani:105,deer:105,boar:115};
+const VS_HP={hotteok:100,jjang:100,poodle:100,rabbit:100,raccoon:105,cat:85,otter:95,gorani:105,deer:105,boar:110};
 /* 상태이상: para 마비(이동·공격·막기 불가) silence 공격 봉인 root 속박(이동 불가) weak 공격력 반감 — 프레임 단위 */
 const STATUS_TXT={para:['기절!','#ffe45c'],silence:['공격 봉인!','#c9a2ff'],root:['속박!','#7fe3ff'],weak:['공격력 반감!','#ff9a7a'],slow:['둔화!','#ff8fc8'],freeze:['얼음!','#9fe8ff'],dot:null};
 const STATUS_KEYS=['para','silence','root','weak','slow','freeze','dot'];
@@ -1363,7 +1363,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  if(o.pull){const q=fp(d,0,1.0*d.sp.scale);popText(q.x,q.y+.3,q.z,'끌려옴!','#bfefff',22)}
  if(o.launch||!grounded){d.vy=-(o.launch||5);if(d.y>=0)d.y=-1}
  if(!o.noMeter)gainM(a,dmg*1.7*(o.meterMul||1));gainM(d,dmg*.9);if(o.drain)drainGauge(d);
- if(o.mark==='dirt'&&d.hp>0){if(!(d.dirtMark>0)){const q=fp(d,0,1.0*d.sp.scale);popText(q.x,q.y+.3,q.z,'흙투성이!','#d8b27a',22)}d.dirtMark=300}   // 5초 안에 멧돼지 돌진을 맞으면 들어올리기
+ if(o.mark==='dirt'&&d.hp>0){if(!(d.dirtMark>0)){const q=fp(d,0,1.0*d.sp.scale);popText(q.x,q.y+.3,q.z,'흙투성이!','#d8b27a',22)}d.dirtMark=VSM()?240:300}   // 5초 안에 멧돼지 돌진을 맞으면 들어올리기
  game.hitstop=o.big?10:6;game.shake=Math.max(game.shake,o.big?20:10);if(localHuman(d)||localHuman(a))buzz(o.big?70:localHuman(d)?40:25);
  const col=o.color||a.sp.aura;
  ring(h.x,h.y,h.z,col,o.big?2.4:1.4);star(h.x,h.y,h.z,o.big?1.3:.8);for(let i=0;i<(o.big?16:10);i++)spark(h.x,h.y,h.z,i%2?'#fff4c2':col);
@@ -1426,13 +1426,13 @@ const SPECIALS={
    if(st<W0){f.vx*=.75;f.vz*=.75;if(st%3===0){const q=fp(f,.25,.3,(Math.random()-.5)*.5);spark(q.x,q.y,q.z,'#bfefff')}}
    else if(st<W1){f.spinV=.52;f.spin+=f.spinV;
     let mx=0,mz=0;if(f.ctrl==='ai'){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;if(d>halfW(f)+halfW(o)+30){mx=dx/d;mz=dz/d}}else if(f.ctrl!=='net'){mx=f.inMx||0;mz=f.inMz||0}
-    const ml=Math.hypot(mx,mz),SPD=5.4,tx=ml>.15?mx/ml*SPD:0,tz=ml>.15?mz/ml*SPD:0,ease=f.ctrl==='ai'?.06:.11;f.vx+=(tx-f.vx)*ease;f.vz+=(tz-f.vz)*ease;
+    const ml=Math.hypot(mx,mz),SPD=VSM()?4.8:5.4,tx=ml>.15?mx/ml*SPD:0,tz=ml>.15?mz/ml*SPD:0,ease=f.ctrl==='ai'?.06:.11;f.vx+=(tx-f.vx)*ease;f.vz+=(tz-f.vz)*ease;
     const a=(f.rotY||0)+f.spin,cx=Math.cos(a),cz=-Math.sin(a),c=fp(f,0,.6*f.sp.scale);   // 입이 향한 쪽(눈에 보이는 회전 기준)으로 물줄기
     for(let i=0;i<3;i++){const sp=.1+Math.random()*.08,up=.02+Math.random()*.035;const s=mkSprite(TX.disc,C(i%2?'#d2f1ff':'#5fc8ff'),false);s.position.set(c.x+cx*.3,c.y+.1,c.z+cz*.3);addPart({obj:s,vx:cx*sp+(Math.random()-.5)*.02,vy:up,vz:cz*sp+(Math.random()-.5)*.02,g:-.0045,life:24,s0:.17,s1:.05,fade:true,op:.9})}
     if(st%12===0)shockwave(f.x*PX,f.z*PX,'#9fe8ff',(halfW(f)+95)*PX);
     if(st%6===0)sfx('spray');if(st%4===0){const g=fp(f,-.1,0,(Math.random()-.5)*.9);const s=mkSprite(TX.puff,C('#cfefff'),false);s.position.set(g.x,.1,g.z);addPart({obj:s,vy:.01,life:18,s0:.3,s1:.8,fade:true,op:.5})}
-    if((st-W0)%14===6&&f.wjHits<8&&o.state!=='ko'&&dist2(f,o)<halfW(f)+halfW(o)+85&&Math.abs(o.y-f.y)<80){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,third=f.wjHits%3===2;
-     if(applyHit(f,o,VSM()?2:2.2,third?16:8,third?20:10,{unblockable:true,color:'#9fe8ff',kx:dx/d,kz:dz/d,launch:third?6:0,big:third,noMeter:f.wjHits>=3})){f.wjHits++;const q=fp(o,0,.6*o.sp.scale);waterBurst(q.x,q.y,q.z,third?16:9,third);popText(q.x,q.y+.4,q.z,third?'촤아악!!':'촤악!','#bfefff',third?26:20);sfx('splash')}}}
+    if((st-W0)%14===6&&f.wjHits<(VSM()?6:8)&&o.state!=='ko'&&dist2(f,o)<halfW(f)+halfW(o)+85&&Math.abs(o.y-f.y)<80){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,third=f.wjHits%3===2;
+     if(applyHit(f,o,VSM()?1.6:2.2,third?16:8,third?20:10,{unblockable:true,color:'#9fe8ff',kx:dx/d,kz:dz/d,launch:third?6:0,big:third,noMeter:f.wjHits>=3})){f.wjHits++;const q=fp(o,0,.6*o.sp.scale);waterBurst(q.x,q.y,q.z,third?16:9,third);popText(q.x,q.y+.4,q.z,third?'촤아악!!':'촤악!','#bfefff',third?26:20);sfx('splash')}}}
    else{f.vx*=.8;f.vz*=.8;f.spinV*=.84;f.spin+=f.spinV;if(st===W1)say(f,'어질어질~','#bfefff')}},
   pose(f,p,st){const W0=12,W1=192;
    if(st<W0){const k=st/W0;p.crouch=8*k;p.headDY=-6*k;p.headRot=-.3*k;p.mouth=.5*k;p.legs[0]=[.6*k,-.3*k];p.legs[2]=[.6*k,-.3*k];p.auto=false}
@@ -1445,14 +1445,14 @@ const SPECIALS={
    if(f.lifting){const s2=st-86;
     if(s2<12){f.vx=f.dx*9;f.vz=f.dz*9;if(s2%2===0){const g=fp(f,-.8,0,(Math.random()-.5)*.8);dust(g.x,g.z)}
      if(s2>=4&&!f.hitDone){const r=rel(f,o);if(r.along>-10&&r.along<reachPx(f,.9)+halfW(o)*.6&&r.perp<halfW(o)*1.1+14&&o.state!=='ko'&&Math.abs(o.y-f.y)<80){f.hitDone=true;
-      if(applyHit(f,o,10,3,34,{launch:16,big:true,unblockable:true,color:'#ffb36b',kx:f.dx,kz:f.dz})){const q=fp(o,0,.8*o.sp.scale);popText(q.x,q.y+.7,q.z,'들어올리기!','#ffd1a8',30);star(q.x,q.y,q.z,1.5);game.shake=Math.max(game.shake,18);const g=fp(f,.7);for(let i=0;i<10;i++)dust(g.x+(Math.random()-.5),g.z+(Math.random()-.5),true);sfx('bighit')}}}}
+      if(applyHit(f,o,VSM()?8:10,3,34,{launch:16,big:true,unblockable:true,color:'#ffb36b',kx:f.dx,kz:f.dz})){const q=fp(o,0,.8*o.sp.scale);popText(q.x,q.y+.7,q.z,'들어올리기!','#ffd1a8',30);star(q.x,q.y,q.z,1.5);game.shake=Math.max(game.shake,18);const g=fp(f,.7);for(let i=0;i<10;i++)dust(g.x+(Math.random()-.5),g.z+(Math.random()-.5),true);sfx('bighit')}}}}
     else{f.vx*=.75;f.vz*=.75}return}
    if(st>=100){setState(f,'idle');return}
    const ph=st<16?'wind':(st<34||(st>=42&&st<60)||(st>=68&&st<86))?'charge':st<86?'pause':'end';
    if(st===16||st===42||st===68){face(f,o);f.dx=f.fx;f.dz=f.fz;f.hitDone=false;sfx('grunt');const g=fp(f,-.5);for(let i=0;i<5;i++)dust(g.x+(Math.random()-.5),g.z+(Math.random()-.5),true)}
    if(ph==='wind'){f.vx*=.6;f.vz*=.6;if(st%4===0){const g=fp(f,.6,0,(st%8?1:-1)*.3);dust(g.x,g.z)}}
    else if(ph==='charge'){f.vx=f.dx*11;f.vz=f.dz*11;if(st%2===0){const g=fp(f,-.9,0,(Math.random()-.5)*.8);dust(g.x,g.z)}if(st%2){const w=fp(f,-1.7,(Math.random()-.5)*1.4);speedLine(w.x,w.y,w.z,f.dx,f.dz,'#ffc9a0')}
-    if(!f.hitDone){const r=rel(f,o);if(r.along>-10&&r.along<reachPx(f,.95)+halfW(o)*.6&&r.perp<halfW(o)*1.1+14&&o.state!=='ko'){f.hitDone=true;const air=o.y<-4;const ok=applyHit(f,o,air?13*2/3:13,11,26,{launch:6,big:true,kx:f.dx,kz:f.dz});if((ok||isRemote(f))&&o.dirtMark>0)f.liftReady=true;if(air){const q=fp(o,0,.6);popText(q.x,q.y+.5,q.z,'점프로 감소','#cfe8ff',18)}}}}
+    if(!f.hitDone){const r=rel(f,o);if(r.along>-10&&r.along<reachPx(f,.95)+halfW(o)*.6&&r.perp<halfW(o)*1.1+14&&o.state!=='ko'){f.hitDone=true;const air=o.y<-4;const D=VSM()?12:13,ok=applyHit(f,o,air?D*2/3:D,11,26,{launch:6,big:true,kx:f.dx,kz:f.dz});if((ok||isRemote(f))&&o.dirtMark>0)f.liftReady=true;if(air){const q=fp(o,0,.6);popText(q.x,q.y+.5,q.z,'점프로 감소','#cfe8ff',18)}}}}
    else{f.vx*=.7;f.vz*=.7;if(ph==='pause')face(f,o)}},
   pose(f,p,st){const ch=(st>=16&&st<34)||(st>=42&&st<60)||(st>=68&&st<86);
    if(f.lifting&&st>=86){const s2=st-86;if(s2<6){gallopPose(p,f.animT*.6,.9);p.crouch=10;p.headRot=.7;p.headDY=16;p.headDX=6;p.eyes='squint';p.mouth=.6}else if(s2<20){p.headRot=-.8;p.headDY=-20;p.headDX=4;p.lean=-.38;p.mouth=.9;p.legs[0]=[1.3,-.5];p.legs[2]=[1.4,-.5];p.auto=false;p.eyes='squint'}else{const k=clamp(1-(s2-20)/22,0,1);p.headRot=-.8*k;p.headDY=-20*k;p.lean=-.38*k;p.mouth=.4*k}return}
@@ -1496,7 +1496,7 @@ function kissFire(f,o,i){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=d
 /* 물방울 올가미(수달): 사거리(BUBBLE_RANGE) 안이면 물방울이 상대를 따라가 감싼 뒤 코앞까지 끌어당기고 터진다. 피해는 약하다 */
 const BUBBLE_RANGE=330;
 function bubbleFire(f,o){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d;f.pdx=ux;f.pdz=uz;const r0=halfW(f)*.7;
- const L={kind:'bubble',x:f.x+ux*r0,z:f.z+uz*r0,y:-46,owner:f,dmg:VSM()?6:6.5,t:0,obj:makeLob('bubble')};
+ const L={kind:'bubble',x:f.x+ux*r0,z:f.z+uz*r0,y:-46,owner:f,dmg:VSM()?4:6.5,t:0,obj:makeLob('bubble')};
  if(d<=BUBBLE_RANGE&&o.state!=='ko'&&o.y>-80){L.lock=o;L.sx=L.x;L.sz=L.z;L.sy=L.y;L.T=Math.max(10,Math.round(d/11));L.side=0;L.arc=14}
  else{L.vx=ux*9;L.vz=uz*9;L.vy=-.5;L.g=.025;L.miss=true;L.life=Math.round(BUBBLE_RANGE/9)}
  lobs.push(L)}
@@ -1563,7 +1563,7 @@ function updateLobs(){for(const pr of lobs){pr.t++;const tg=pr.owner===p1?p2:p1;
    continue}
   if(tg&&pr.t>4&&pr.home){const dx=tg.x-pr.x,dz=tg.z-pr.z,d=Math.hypot(dx,dz)||1,sp=Math.hypot(pr.vx,pr.vz);let nx=pr.vx/sp+dx/d*pr.home,nz=pr.vz/sp+dz/d*pr.home;const nn=Math.hypot(nx,nz)||1;pr.vx=nx/nn*sp;pr.vz=nz/nn*sp}
   pr.x+=pr.vx;pr.z+=pr.vz;pr.vy+=pr.g;pr.y+=pr.vy;
-  const PO={color:LOB_SPLAT[pr.kind],unblockable:true,armorBreak:true};if(pr.kind==='dirt'){PO.meterMul=2.5;PO.mark='dirt'}   // 멧돼지 흙: 맞히면 기력이 2.5배로 차고 상대에게 흙 자국(들어올리기 조건)
+  const PO={color:LOB_SPLAT[pr.kind],unblockable:true,armorBreak:true};if(pr.kind==='dirt'){PO.meterMul=VSM()?1.8:2.5;PO.mark='dirt'}   // 멧돼지 흙: 맞히면 기력이 2.5배로 차고 상대에게 흙 자국(들어올리기 조건)
   if(pr.life&&pr.t>pr.life){pr.dead=true;if(pr.kind==='bubble'){waterBurst(pr.x*PX,-pr.y*PX,pr.z*PX,8,false);sfx('pop')}}   // 사거리 밖으로 날아간 물방울은 허공에서 터진다
   if(pr.dead){}
   else if(!pr.dead&&!pr.miss&&pr.t>=8&&tg&&dist2(pr,tg)<halfW(tg)+26&&Math.abs((tg.y-30)-pr.y)<52&&!tg.invis&&tg.state!=='ko'){const m=Math.hypot(pr.vx,pr.vz)||1;applyHit(pr.owner,tg,pr.dmg,4,14,Object.assign({kx:pr.vx/m,kz:pr.vz/m},PO));splat(pr.x*PX,pr.z*PX,pr.kind);sfx('splat');pr.dead=true}
