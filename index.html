@@ -1123,7 +1123,7 @@ const NET=(()=>{
   const g={m:matchNo,rd:game.round,ph:game.phase,pt:game.phaseT,tm:game.timer,w:game.wins,win:game.winner?(game.winner===p1?0:1):-1,kt:game.koType,scr:game.screen};
   const patch={g};if(game.screen==='fight'&&p1)patch.s=pack();
   send(patch)}
- const flags=o=>{const r={};if(!o)return r;for(const k of ['unblockable','armorBreak','push','launch','big','color','status','drain','pull','noMeter'])if(o[k]!==undefined)r[k]=o[k];return r};
+ const flags=o=>{const r={};if(!o)return r;for(const k of ['unblockable','armorBreak','push','launch','big','color','status','drain','pull','noMeter','basic'])if(o[k]!==undefined)r[k]=o[k];return r};
  function sendHit(h){if(!connected())return;hitId++;send({h:[{i:hitId,m:matchNo,r:game.round,d:r1(h.dmg),k:r1(h.kb),s:h.stun|0,x:r3(-(h.kx||0)),z:r3(h.kz||0),o:flags(h.o)}]})}   // 믿을 수 있는 채널이라 한 번만 보낸다
  function takeHits(f,o){if(!inH.length)return;const q=inH;inH=[];for(const h of q){if(h.i<=lastHitIn)continue;lastHitIn=h.i;if(h.m!==matchNo||h.r!==game.round||game.phase!=='fight')continue;
   applyHit(f,o,h.d,h.k,h.s,Object.assign({},h.o,{fromNet:true,kx:h.x,kz:h.z}))}}
@@ -1350,7 +1350,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  if(blocking&&o.push){setState(d,'block');d.stun=16;d.vx=kx*kb;d.vz=kz*kb;d.hp=Math.max(1,d.hp-dmg);popText(h.x,h.y+1.1,h.z,'-'+Math.round(dmg),'#ffe08a',20);const g=fp(d,0,-fCY(d)+.1);for(let i=0;i<8;i++)dust(g.x+(Math.random()-.5)*.8,g.z+(Math.random()-.5)*.8);ring(h.x,h.y,h.z,'#ffffff',1.6);popText(h.x,h.y+.7,h.z,'밀어냄','#fff2c8',22);sfx('push');game.hitstop=4;game.shake=Math.max(game.shake,5);return true}
  if(blocking){setState(d,'block');d.stun=12;d.vx=kx*kb*.8;d.vz=kz*kb*.8;d.hp=Math.max(1,d.hp-dmg*.15);
   ring(h.x,h.y,h.z,'#8fd3ff',1.2);for(let i=0;i<6;i++)spark(h.x,h.y,h.z,'#bfe6ff');popText(h.x,h.y+.7,h.z,'막기','#bfe6ff',22);
-  sfx('block');gainM(d,5);game.hitstop=3;return true}   // 막히면 공격자는 기력도 보조기도 못 얻는다
+  sfx('block');if(!o.basic)gainM(d,2.5);game.hitstop=3;return true}   // 막히면 공격자는 기력도 보조기도 못 얻는다. 막은 쪽은 기술을 막았을 때만 조금 찬다
  const wasStun=d.state==='hit';
  a.combo=wasStun?a.combo+1:1;a.comboT=70;
  // 연타 보정: 맞는 중에 또 맞으면 경직이 점점 짧아지고, 기본 공격 4연타째엔 상대를 멀리 떨쳐내 숨 돌릴 틈을 준다
@@ -1361,7 +1361,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  if(breaker){d.breaker=30;const q=fp(d,0,1.1*d.sp.scale);popText(q.x,q.y+.4,q.z,'떨쳐냄!','#ffffff',24);shockwave(d.x*PX,d.z*PX,'#ffffff',2.2)}
  if(o.pull){const q=fp(d,0,1.0*d.sp.scale);popText(q.x,q.y+.3,q.z,'끌려옴!','#bfefff',22)}
  if(o.launch||!grounded){d.vy=-(o.launch||5);if(d.y>=0)d.y=-1}
- if(!o.noMeter)gainM(a,dmg*1.7);gainM(d,dmg*.9);if(o.drain)drainGauge(d);
+ if(!o.noMeter)gainM(a,dmg*1.7);if(!o.basic)gainM(d,dmg*.45);if(o.drain)drainGauge(d);   // 맞는 쪽: 기본 공격에 맞으면 기력이 안 차고, 기술에 맞으면 예전의 절반만 찬다
  game.hitstop=o.big?10:6;game.shake=Math.max(game.shake,o.big?20:10);if(localHuman(d)||localHuman(a))buzz(o.big?70:localHuman(d)?40:25);
  const col=o.color||a.sp.aura;
  ring(h.x,h.y,h.z,col,o.big?2.4:1.4);star(h.x,h.y,h.z,o.big?1.3:.8);for(let i=0;i<(o.big?16:10);i++)spark(h.x,h.y,h.z,i%2?'#fff4c2':col);
@@ -1609,7 +1609,7 @@ function updateF(f,o,inp){
    if(sh&&f.st===A.s-1&&inp.shoveHeld&&f.charge<24){f.st--;f.charge++;if(f.charge%4===0){const q=fp(f,.3,0,(Math.random()-.5)*.6);spark(q.x,q.y,q.z,f.charge>=10?'#ffd27a':'#fff4d6')}if(f.charge===10){const q=fp(f);ring(q.x,q.y,q.z,'#ffd27a',.8);sfx('charge')}}
    if(sh&&f.st>=A.s&&f.st<A.s+2){const k=f.charge>=10?2:1.2;f.vx+=f.fx*k;f.vz+=f.fz*k}
    if(f.st<A.s+A.a&&!f.hitDone&&o.state!=='ko'){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;f.fx+=(dx/d-f.fx)*.35;f.fz+=(dz/d-f.fz)*.35;const n=Math.hypot(f.fx,f.fz)||1;f.fx/=n;f.fz/=n}   // 공격 준비 중엔 상대를 계속 따라 돈다
-   if(f.st>=A.s&&f.st<A.s+A.a&&!f.hitDone&&inReach(f,o,A.reach*(f.atkMove?1.2:1.05)*reachMul(f),true)){f.hitDone=true;if(sh){const big=f.charge>=10;applyHit(f,o,big?4:2,big?27:12,big?28:16,{push:true,big,color:big?'#ffd27a':'#fff4d6'})}else applyHit(f,o,A.dmg,A.kb,A.stun)}
+   if(f.st>=A.s&&f.st<A.s+A.a&&!f.hitDone&&inReach(f,o,A.reach*(f.atkMove?1.2:1.05)*reachMul(f),true)){f.hitDone=true;if(sh){const big=f.charge>=10;applyHit(f,o,big?4:2,big?27:12,big?28:16,{push:true,big,color:big?'#ffd27a':'#fff4d6',basic:true})}else applyHit(f,o,A.dmg,A.kb,A.stun,{basic:true})}
    if(f.state==='scratch'&&f.st===A.s){const q=fp(f,reachPx(f,.75)*PX,0);slashFX(q.x,q.y,q.z,scrDir(f))}
    if(f.st>=A.s+A.a+A.r)setState(f,f.y<0?'jump':'idle');break}
   case 'special':{const Sx=SPECIALS[f.sp.special];Sx.update(f,o,f.st);if(f.state==='special'&&f.st>=Sx.dur)setState(f,f.y<0?'jump':'idle');break}
