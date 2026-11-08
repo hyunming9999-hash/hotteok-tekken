@@ -273,8 +273,8 @@ SP.rabbit.subDesc='당근 세 개가 무조건 명중한다. 가까우면 약하
 SP.raccoon.spDesc+=' 당한 상대는 2초간 공격하지 못한다.';
 SP.gorani.spDesc+=' 맞은 상대는 2초간 움직이지 못한다. 고라니는 발이 빠르다.';
 SP.deer.spDesc+=' 들이받힌 상대는 2.5초간 공격력이 반으로 준다.';
-SP.boar.spDesc+=' 점프로 받아도 피해의 2/3는 들어간다. 모든 필살기 중 가장 세지만 기력이 1.5배 느리게 찬다.';
-SP.boar.subDesc+=' 2번 맞히면 쓸 수 있는 대신 한 발이 조금 약하다.';
+SP.boar.spDesc+=' 점프로 받아도 피해의 2/3는 들어간다. 모든 필살기 중 가장 세지만 기력이 1.5배 느리게 찬다. 흙 뿌리기를 맞은 상대를 받으면 마지막에 엄니로 들어올리는 공격이 추가된다.';
+SP.boar.subDesc+=' 2번 맞히면 쓸 수 있는 대신 한 발이 조금 약하다. 맞히면 기력이 2.5배로 차고, 흙을 뒤집어쓴 상대에게 5초 안에 산돼지 광란을 맞히면 마지막에 엄니로 들어올려 하늘 높이 띄운다.';
 Object.assign(SP.cat,{subNeed:2,spCost:50,meterRate:1.25,airAttack:true});   // 고양이만 점프 중 기본 공격 가능   // 고양이: 보조기 2번 맞히면·필살기 게이지 절반(2번 사용)·게이지 1.25배 빠름·필살기 피해 약함
 SP.cat.spDesc+=' 게이지 절반만 있으면 쓸 수 있어 가득 차면 두 번 쓴다. 또한 고양이만 점프 중에 물기·할퀴기로 덮칠 수 있다. 대신 한 대가 약하고 다 맞는다는 보장도 없다. 기력도 빨리 찬다.';
 SP.cat.subDesc+=' 2번 맞히면 쓸 수 있다.';
@@ -285,7 +285,7 @@ const SHORT={hotteok:['돌진하며 3번 물기, 물리면 2초 마비','뒤돌�
  cat:['앞으로 사라졌다 상대 코앞에 나타나 냥냥펀치 · 게이지 절반으로 2번, 한 대는 약함 · 유일하게 점프 중 물기·할퀴기 가능','헤어볼 3발 유도 · 가까울수록 셈 · 2번 맞히면'],
  gorani:['소리 광선 · 맞으면 2초간 이동 불가 · 발이 빠름','뒷발 차기 · 넓은 사정권 안이면 무조건 명중, 2초 기절'],
  deer:['뿔로 돌진 · 2.5초간 상대 공격력 반감 · 빗나가면 한 번 더','발굽 찍기 충격파 · 사정권 안이면 무조건 명중, 2초 기절'],
- boar:['세 번 연속 돌진 · 가장 세지만 게이지가 느림','흙 5발 뿌리기 · 2번 맞히면, 한 발은 약함']};
+ boar:['세 번 연속 돌진 · 가장 세지만 게이지가 느림 · 흙 맞은 상대를 받으면 들어올리기 추가','흙 5발 뿌리기 · 2번 맞히면 · 맞히면 기력 2.5배, 돌진 들어올리기 조건']};
 for(const k in SHORT){SP[k].spShort=SHORT[k][0];SP[k].subShort=SHORT[k][1]}
 SP.cat.subDesc=SP.cat.subDesc.replace(' 2번 맞히면 쓸 수 있다.','')+' 가까울수록 세고 멀수록 약하다. 2번 맞히면 쓸 수 있다.';
 SP.gorani.subDesc='뒤돌아 뒷발로 걷어찬다. 사정권(300px)이 넓어 꽤 떨어져 있어도 무조건 맞고, 맞은 상대는 2초간 기절한다.';
@@ -1123,7 +1123,7 @@ const NET=(()=>{
   const g={m:matchNo,rd:game.round,ph:game.phase,pt:game.phaseT,tm:game.timer,w:game.wins,win:game.winner?(game.winner===p1?0:1):-1,kt:game.koType,scr:game.screen};
   const patch={g};if(game.screen==='fight'&&p1)patch.s=pack();
   send(patch)}
- const flags=o=>{const r={};if(!o)return r;for(const k of ['unblockable','armorBreak','push','launch','big','color','status','drain','pull','noMeter','basic'])if(o[k]!==undefined)r[k]=o[k];return r};
+ const flags=o=>{const r={};if(!o)return r;for(const k of ['unblockable','armorBreak','push','launch','big','color','status','drain','pull','noMeter','basic','meterMul','mark'])if(o[k]!==undefined)r[k]=o[k];return r};
  function sendHit(h){if(!connected())return;hitId++;send({h:[{i:hitId,m:matchNo,r:game.round,d:r1(h.dmg),k:r1(h.kb),s:h.stun|0,x:r3(-(h.kx||0)),z:r3(h.kz||0),o:flags(h.o)}]})}   // 믿을 수 있는 채널이라 한 번만 보낸다
  function takeHits(f,o){if(!inH.length)return;const q=inH;inH=[];for(const h of q){if(h.i<=lastHitIn)continue;lastHitIn=h.i;if(h.m!==matchNo||h.r!==game.round||game.phase!=='fight')continue;
   applyHit(f,o,h.d,h.k,h.s,Object.assign({},h.o,{fromNet:true,kx:h.x,kz:h.z}))}}
@@ -1343,7 +1343,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  // 온라인: 상대 캐릭터의 피해 판정은 그쪽 기기가 한다 → 여기선 효과만 보여 주고 기록을 보낸다
  if(isRemote(d)&&!o.fromNet){ring(h.x,h.y,h.z,o.color||a.sp.aura,.9);NET.sendHit({dmg,kb,stun,kx,kz,o});chargeSub(a);a.landed=true;return true}
  // 슈퍼아머: 돌진 계열 필살기·보조기 중에는 맞아도 끊기지 않는다 (피해는 60%)
- if(((d.state==='special'&&ARMOR[d.sp.special])||d.state==='sub')&&!o.armorBreak){dmg*=.6;d.hp-=dmg;chargeSub(a);a.landed=true;if(o.drain)drainGauge(d);d.flash=4;gainM(a,dmg*1.2);
+ if(((d.state==='special'&&ARMOR[d.sp.special])||d.state==='sub')&&!o.armorBreak){dmg*=.6;d.hp-=dmg;chargeSub(a);a.landed=true;if(o.drain)drainGauge(d);d.flash=4;gainM(a,dmg*1.2*(o.meterMul||1));if(o.mark==='dirt')d.dirtMark=300;
   ring(h.x,h.y,h.z,'#ffffff',.9);for(let i=0;i<4;i++)spark(h.x,h.y,h.z,'#ffe6c0');popText(h.x,h.y+.8,h.z,'-'+Math.round(dmg),'#d8d8d8',20);sfx('hit');
   if(d.hp<=0)koNow(a,d,kx,kz);return true}
  const blocking=!o.unblockable&&grounded&&(d.state==='idle'||d.state==='walk'||d.state==='block')&&(d.ctrl!=='ai'?d.holdBack:d.ai.blockT>0);
@@ -1361,7 +1361,8 @@ function applyHit(a,d,dmg,kb,stun,o){
  if(breaker){d.breaker=30;const q=fp(d,0,1.1*d.sp.scale);popText(q.x,q.y+.4,q.z,'떨쳐냄!','#ffffff',24);shockwave(d.x*PX,d.z*PX,'#ffffff',2.2)}
  if(o.pull){const q=fp(d,0,1.0*d.sp.scale);popText(q.x,q.y+.3,q.z,'끌려옴!','#bfefff',22)}
  if(o.launch||!grounded){d.vy=-(o.launch||5);if(d.y>=0)d.y=-1}
- if(!o.noMeter)gainM(a,dmg*1.7);gainM(d,dmg*.9);if(o.drain)drainGauge(d);
+ if(!o.noMeter)gainM(a,dmg*1.7*(o.meterMul||1));gainM(d,dmg*.9);if(o.drain)drainGauge(d);
+ if(o.mark==='dirt'&&d.hp>0){if(!(d.dirtMark>0)){const q=fp(d,0,1.0*d.sp.scale);popText(q.x,q.y+.3,q.z,'흙투성이!','#d8b27a',22)}d.dirtMark=300}   // 5초 안에 멧돼지 돌진을 맞으면 들어올리기
  game.hitstop=o.big?10:6;game.shake=Math.max(game.shake,o.big?20:10);if(localHuman(d)||localHuman(a))buzz(o.big?70:localHuman(d)?40:25);
  const col=o.color||a.sp.aura;
  ring(h.x,h.y,h.z,col,o.big?2.4:1.4);star(h.x,h.y,h.z,o.big?1.3:.8);for(let i=0;i<(o.big?16:10);i++)spark(h.x,h.y,h.z,i%2?'#fff4c2':col);
@@ -1436,14 +1437,24 @@ const SPECIALS={
    if(st<W0){const k=st/W0;p.crouch=8*k;p.headDY=-6*k;p.headRot=-.3*k;p.mouth=.5*k;p.legs[0]=[.6*k,-.3*k];p.legs[2]=[.6*k,-.3*k];p.auto=false}
    else if(st<W1){p.lean=-1.2;p.crouch=-14;p.headRot=.75;p.mouth=1;p.eyes='squint';p.legs=[[1.3,-1.2],[-.9,.9],[1.3,-1.2],[-.9,.9]];p.auto=false;p.tail=Math.sin(st*.5)*.6}
    else{const k=clamp(1-(st-W1)/14,0,1);p.lean=-1.2*k;p.crouch=-14*k+3*(1-k);p.headRot=.75*k;p.mouth=.6*k+.2;p.eyes='squint';p.headYaw=Math.sin(st*.7)*.45*(1-k);p.legs=[[1.3*k,-1.2*k],[-.9*k,.9*k],[1.3*k,-1.2*k],[-.9*k,.9*k]];p.auto=k<.3}}},
- stampede:{dur:100,start(f){say(f,'꾸에에엑!','#ffd1a8');sfx('grunt');f.dx=f.fx;f.dz=f.fz},
-  update(f,o,st){const ph=st<16?'wind':(st<34||(st>=42&&st<60)||(st>=68&&st<86))?'charge':st<86?'pause':'end';
+ /* 멧돼지 산돼지 광란: 돌진 3회. 흙 뿌리기(보조기)를 맞은 상대(dirtMark)에게 돌진이 들어가면 마지막에 '들어올리기'가 추가로 발동 — 짧게 달려들어 엄니로 하늘 높이 띄운다 */
+ stampede:{dur:132,start(f){say(f,'꾸에에엑!','#ffd1a8');sfx('grunt');f.dx=f.fx;f.dz=f.fz;f.liftReady=false;f.lifting=false},
+  update(f,o,st){
+   if(st===86&&f.liftReady&&o.state!=='ko'&&!o.invis&&dist2(f,o)<280&&o.y>-70){f.lifting=true;face(f,o);f.dx=f.fx;f.dz=f.fz;f.hitDone=false;say(f,'들어올린다!','#ffd1a8');sfx('grunt')}
+   if(f.lifting){const s2=st-86;
+    if(s2<12){f.vx=f.dx*9;f.vz=f.dz*9;if(s2%2===0){const g=fp(f,-.8,0,(Math.random()-.5)*.8);dust(g.x,g.z)}
+     if(s2>=4&&!f.hitDone){const r=rel(f,o);if(r.along>-10&&r.along<reachPx(f,.9)+halfW(o)*.6&&r.perp<halfW(o)*1.1+14&&o.state!=='ko'&&Math.abs(o.y-f.y)<80){f.hitDone=true;
+      if(applyHit(f,o,10,3,34,{launch:16,big:true,unblockable:true,color:'#ffb36b',kx:f.dx,kz:f.dz})){const q=fp(o,0,.8*o.sp.scale);popText(q.x,q.y+.7,q.z,'들어올리기!','#ffd1a8',30);star(q.x,q.y,q.z,1.5);game.shake=Math.max(game.shake,18);const g=fp(f,.7);for(let i=0;i<10;i++)dust(g.x+(Math.random()-.5),g.z+(Math.random()-.5),true);sfx('bighit')}}}}
+    else{f.vx*=.75;f.vz*=.75}return}
+   if(st>=100){setState(f,'idle');return}
+   const ph=st<16?'wind':(st<34||(st>=42&&st<60)||(st>=68&&st<86))?'charge':st<86?'pause':'end';
    if(st===16||st===42||st===68){face(f,o);f.dx=f.fx;f.dz=f.fz;f.hitDone=false;sfx('grunt');const g=fp(f,-.5);for(let i=0;i<5;i++)dust(g.x+(Math.random()-.5),g.z+(Math.random()-.5),true)}
    if(ph==='wind'){f.vx*=.6;f.vz*=.6;if(st%4===0){const g=fp(f,.6,0,(st%8?1:-1)*.3);dust(g.x,g.z)}}
    else if(ph==='charge'){f.vx=f.dx*11;f.vz=f.dz*11;if(st%2===0){const g=fp(f,-.9,0,(Math.random()-.5)*.8);dust(g.x,g.z)}if(st%2){const w=fp(f,-1.7,(Math.random()-.5)*1.4);speedLine(w.x,w.y,w.z,f.dx,f.dz,'#ffc9a0')}
-    if(!f.hitDone){const r=rel(f,o);if(r.along>-10&&r.along<reachPx(f,.95)+halfW(o)*.6&&r.perp<halfW(o)*1.1+14&&o.state!=='ko'){f.hitDone=true;const air=o.y<-4;applyHit(f,o,air?13*2/3:13,11,26,{launch:6,big:true,kx:f.dx,kz:f.dz});if(air){const q=fp(o,0,.6);popText(q.x,q.y+.5,q.z,'점프로 감소','#cfe8ff',18)}}}}
+    if(!f.hitDone){const r=rel(f,o);if(r.along>-10&&r.along<reachPx(f,.95)+halfW(o)*.6&&r.perp<halfW(o)*1.1+14&&o.state!=='ko'){f.hitDone=true;const air=o.y<-4;const ok=applyHit(f,o,air?13*2/3:13,11,26,{launch:6,big:true,kx:f.dx,kz:f.dz});if((ok||isRemote(f))&&o.dirtMark>0)f.liftReady=true;if(air){const q=fp(o,0,.6);popText(q.x,q.y+.5,q.z,'점프로 감소','#cfe8ff',18)}}}}
    else{f.vx*=.7;f.vz*=.7;if(ph==='pause')face(f,o)}},
   pose(f,p,st){const ch=(st>=16&&st<34)||(st>=42&&st<60)||(st>=68&&st<86);
+   if(f.lifting&&st>=86){const s2=st-86;if(s2<6){gallopPose(p,f.animT*.6,.9);p.crouch=10;p.headRot=.7;p.headDY=16;p.headDX=6;p.eyes='squint';p.mouth=.6}else if(s2<20){p.headRot=-.8;p.headDY=-20;p.headDX=4;p.lean=-.38;p.mouth=.9;p.legs[0]=[1.3,-.5];p.legs[2]=[1.4,-.5];p.auto=false;p.eyes='squint'}else{const k=clamp(1-(s2-20)/22,0,1);p.headRot=-.8*k;p.headDY=-20*k;p.lean=-.38*k;p.mouth=.4*k}return}
    if(st<16){p.crouch=9;p.headRot=.5;p.headDY=12;p.headDX=-3;p.legs[2]=[(st%8<4)?.6:-.1,.3];p.eyes='squint';p.mouth=.3}
    else if(ch){gallopPose(p,f.animT*.6,.9);p.headRot=.55;p.headDY=14;p.headDX=8;p.mouth=.8;p.eyes='squint'}
    else{p.headRot=-.1;p.headDY=-4;p.mouth=.5;p.crouch=4}}}
@@ -1551,7 +1562,7 @@ function updateLobs(){for(const pr of lobs){pr.t++;const tg=pr.owner===p1?p2:p1;
    continue}
   if(tg&&pr.t>4&&pr.home){const dx=tg.x-pr.x,dz=tg.z-pr.z,d=Math.hypot(dx,dz)||1,sp=Math.hypot(pr.vx,pr.vz);let nx=pr.vx/sp+dx/d*pr.home,nz=pr.vz/sp+dz/d*pr.home;const nn=Math.hypot(nx,nz)||1;pr.vx=nx/nn*sp;pr.vz=nz/nn*sp}
   pr.x+=pr.vx;pr.z+=pr.vz;pr.vy+=pr.g;pr.y+=pr.vy;
-  const PO={color:LOB_SPLAT[pr.kind],unblockable:true,armorBreak:true};
+  const PO={color:LOB_SPLAT[pr.kind],unblockable:true,armorBreak:true};if(pr.kind==='dirt'){PO.meterMul=2.5;PO.mark='dirt'}   // 멧돼지 흙: 맞히면 기력이 2.5배로 차고 상대에게 흙 자국(들어올리기 조건)
   if(pr.life&&pr.t>pr.life){pr.dead=true;if(pr.kind==='bubble'){waterBurst(pr.x*PX,-pr.y*PX,pr.z*PX,8,false);sfx('pop')}}   // 사거리 밖으로 날아간 물방울은 허공에서 터진다
   if(pr.dead){}
   else if(!pr.dead&&!pr.miss&&pr.t>=8&&tg&&dist2(pr,tg)<halfW(tg)+26&&Math.abs((tg.y-30)-pr.y)<52&&!tg.invis&&tg.state!=='ko'){const m=Math.hypot(pr.vx,pr.vz)||1;applyHit(pr.owner,tg,pr.dmg,4,14,Object.assign({kx:pr.vx/m,kz:pr.vz/m},PO));splat(pr.x*PX,pr.z*PX,pr.kind);sfx('splat');pr.dead=true}
@@ -1573,7 +1584,7 @@ function updateF(f,o,inp){
  for(const k of STATUS_KEYS)if(f[k]>0){f[k]--;
   if(k==='dot'&&f[k]%30===0&&game.phase==='fight'&&f.hp>0&&f.state!=='ko'&&!invincible(f)){f.hp-=1;f.flash=Math.max(f.flash,3);const q=fp(f,0,.9*f.sp.scale);popText(q.x,q.y+.4,q.z,'-1','#ff7fb6',20);for(let i=0;i<3;i++)spark(q.x,q.y,q.z,'#ff8fc8');if(f.hp<=0)koNow(f===p1?p2:p1,f,-f.fx,-f.fz)}   // 뽀뽀 지속 피해
   if(k==='freeze'&&f[k]===0){const q=fp(f);for(let i=0;i<14;i++)spark(q.x,q.y,q.z,i%2?'#e8fbff':'#8fdcff');sfx('block')}}   // 얼음 깨짐
- if(f.breaker>0){f.breaker--;if(f.animT%6<3&&f.rig)f.flash=Math.max(f.flash,1)}if(f.chainT>0)f.chainT--;
+ if(f.breaker>0){f.breaker--;if(f.animT%6<3&&f.rig)f.flash=Math.max(f.flash,1)}if(f.chainT>0)f.chainT--;if(f.dirtMark>0)f.dirtMark--;
  const stopped=f.para>0||f.freeze>0;
  if(stopped||f.root>0)inp=Object.assign({},inp,{mx:0,mz:0,jump:false,run:false,dash:false});
  if(stopped||f.silence>0)inp=Object.assign({},inp,{bite:false,scratch:false,shove:false,special:false,sub:false});
