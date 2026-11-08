@@ -304,9 +304,9 @@ SP.poodle={name:'누리',title:'우비 입은 하얀 푸들',bodyW:84,bodyH:44,l
 SP.otter={name:'수달',title:'계곡의 장난꾸러기',bodyW:104,bodyH:36,legLen:16,legW:10,neckDX:30,neckDY:-12,headW:32,headH:26,snoutL:11,snoutH:12,eyeR:4.4,noseR:4.2,
  col:{base:'#4f3b2a',light:'#6e5843',dark:'#241b13',belly:'#a89a80',muzzle:'#968468',chin:'#d6c9b3',paw:'#33271e',inner:'#8c6e60',nose:'#17110f'},
  ear:'tiny',tail:'otter',pattern:'sleek',whiskers:true,webbed:true,hp:95,speed:4,jump:13,scale:.95,special:'waterjet',aura:'#7fd8ff',atkSpd:.75,dmgMul:.75,
- spName:'워터제트',spDesc:'꼬리로 서서 팽이처럼 돌며 3초 동안 사방에 물을 뿌린다. 도는 동안 방향키로 팽이를 몰 수 있고, 물줄기에 닿은 상대는 막아도 맞고 밀려난다. 한 번은 약하지만 쫓아가며 여러 번 맞힌다. 도는 동안 맞아도 멈추지 않는다.',
+ spName:'워터제트',spDesc:'꼬리로 서서 팽이처럼 돌며 3초 동안 사방에 물을 뿌린다. 도는 동안 방향키로 팽이를 몰 수 있고, 물줄기에 닿은 상대는 막아도 맞고 밀려난다. 한 번은 약하지만 쫓아가며 여러 번 맞힌다. 도는 동안은 완전 무적이고, 회전이 끝나 어질어질한 순간만 맞는다.',
  sub:'bubble',subName:'물방울 올가미',subBtn:'물방울',subDesc:'물방울을 날려 상대를 감싼 뒤 코앞까지 끌어당기고 터뜨린다. 중거리(330px) 안이면 무조건 명중. 피해는 약하지만 끌려온 상대를 바로 물 수 있다.',
- spShort:'팽이처럼 돌며 3초간 물 뿌리기 · 방향키로 조종 · 닿으면 밀려남, 막기 불가',subShort:'물방울로 감싸 끌어당긴 뒤 터뜨림 · 330px 안 무조건 명중 · 피해 약함',
+ spShort:'팽이처럼 돌며 3초간 물 뿌리기 · 방향키로 조종 · 도는 동안 무적 · 닿으면 밀려남, 막기 불가',subShort:'물방울로 감싸 끌어당긴 뒤 터뜨림 · 330px 안 무조건 명중 · 피해 약함',
  fact:'수달은 물갈퀴 발과 두꺼운 꼬리로 헤엄치고 매끈한 털이 물을 튕겨 낸다. 천연기념물이자 멸종위기 야생생물 1급이다.'};
 for(const k in SP)SP[k].key=k;
 const LADDER=['rabbit','raccoon','cat','gorani','deer','otter','boar'];
@@ -1269,7 +1269,9 @@ function walkPose(p,ph,a){const s=Math.sin(ph),k1=.5*(1+Math.sin(ph-1.3))*a*.95,
 function gallopPose(p,ph,a){const s1=Math.sin(ph),s2=Math.sin(ph-.5);p.legs[0]=[s1*a,Math.max(0,-s1)*a*1.2];p.legs[2]=[s2*a,Math.max(0,-s2)*a*1.2];p.legs[1]=[-s1*a,-Math.max(0,s1)*a];p.legs[3]=[-s2*a,-Math.max(0,s2)*a];p.bob=-Math.abs(Math.cos(ph))*5;p.lean=Math.sin(ph)*.06}
 function tuckPose(p,vy){const k=vy<0?1:.55;p.legs[0]=[.9*k,-1.5*k];p.legs[2]=[1*k,-1.5*k];p.legs[1]=[-.9*k,1.4*k];p.legs[3]=[-1*k,1.4*k];p.auto=false}
 
-const ARMOR={rush:1,stampede:1,waterjet:1};
+const ARMOR={rush:1,stampede:1};
+/* 수달 워터제트: 준비부터 회전이 끝날 때까지(192프레임) 완전 무적. 마지막 어질어질 14프레임만 맞는다 */
+const invincible=f=>f.state==='special'&&f.sp.special==='waterjet'&&f.st<192;
 const ATK={bite:{s:7,a:5,r:13,reach:1.3,dmg:7,kb:5,stun:17},scratch:{s:4,a:5,r:9,reach:1.1,dmg:5,kb:3,stun:13},shove:{s:6,a:4,r:15,reach:.62,dmg:2,kb:8,stun:14}};
 /* 종별 공격 속도: sp.atkSpd(수달 .75)만큼 준비·판정·후딜 프레임이 짧아진다 */
 const ATK_SC={};
@@ -1329,6 +1331,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  o=o||{};
  if(isRemote(a)&&!o.fromNet)return false;   // 상대(온라인) 캐릭터의 공격은 상대 기기가 판정해 기록으로 보내 준다 — 여기서는 연출용 시뮬레이션일 뿐
  if(d.state==='ko'||d.invis||game.phase!=='fight')return false;
+ if(invincible(d)){const q=fp(d,0,.9*d.sp.scale);if(!o.fromNet){ring(q.x,q.y,q.z,'#9fe8ff',1.3);popText(q.x,q.y+.5,q.z,'무적!','#bfefff',22);sfx('block')}return false}   // 도는 수달은 아무것도 안 통한다
  if(d.breaker>0&&BASIC[a.state]&&!o.fromNet)return false;   // 떨쳐낸 직후엔 기본 공격이 잠시 안 통한다(무한 연타 방지)
  const grounded=d.y>=0,h=fp(d,halfW(d)*.5*PX,0);
  let kx=o.kx!==undefined?o.kx:a.fx,kz=o.kz!==undefined?o.kz:a.fz;
@@ -1568,7 +1571,7 @@ function updateF(f,o,inp){
  const grounded=f.y>=0;
  // 상태이상 타이머·효과
  for(const k of STATUS_KEYS)if(f[k]>0){f[k]--;
-  if(k==='dot'&&f[k]%30===0&&game.phase==='fight'&&f.hp>0&&f.state!=='ko'){f.hp-=1;f.flash=Math.max(f.flash,3);const q=fp(f,0,.9*f.sp.scale);popText(q.x,q.y+.4,q.z,'-1','#ff7fb6',20);for(let i=0;i<3;i++)spark(q.x,q.y,q.z,'#ff8fc8');if(f.hp<=0)koNow(f===p1?p2:p1,f,-f.fx,-f.fz)}   // 뽀뽀 지속 피해
+  if(k==='dot'&&f[k]%30===0&&game.phase==='fight'&&f.hp>0&&f.state!=='ko'&&!invincible(f)){f.hp-=1;f.flash=Math.max(f.flash,3);const q=fp(f,0,.9*f.sp.scale);popText(q.x,q.y+.4,q.z,'-1','#ff7fb6',20);for(let i=0;i<3;i++)spark(q.x,q.y,q.z,'#ff8fc8');if(f.hp<=0)koNow(f===p1?p2:p1,f,-f.fx,-f.fz)}   // 뽀뽀 지속 피해
   if(k==='freeze'&&f[k]===0){const q=fp(f);for(let i=0;i<14;i++)spark(q.x,q.y,q.z,i%2?'#e8fbff':'#8fdcff');sfx('block')}}   // 얼음 깨짐
  if(f.breaker>0){f.breaker--;if(f.animT%6<3&&f.rig)f.flash=Math.max(f.flash,1)}if(f.chainT>0)f.chainT--;
  const stopped=f.para>0||f.freeze>0;
