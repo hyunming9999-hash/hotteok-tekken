@@ -233,7 +233,7 @@ const SP={
  hotteok:{name:'호떡',title:'진도의 맹견',bodyW:116,bodyH:48,legLen:50,legW:12,neckDX:38,neckDY:-30,headW:40,headH:34,snoutL:27,snoutH:18,
   col:{base:'#7a5634',light:'#a67a48',dark:'#2b1f16',belly:'#b48f62',muzzle:'#857468',chin:'#ece4d6',paw:'#9a8670',inner:'#c98f8b',nose:'#1a1412'},
   ear:'pointy',tail:'curl',pattern:'brindle',coat:true,hp:100,speed:3.4,jump:13.5,scale:1,special:'rush',aura:'#ff6f91',
-  sub:'poop',subName:'똥 미사일',subBtn:'똥!',subDesc:'뒤돌아서 다섯 발. 사거리 안이면 어디를 보고 있든 무조건 명중, 막을 수도 없다. 멀수록 피해가 약하다.',spName:'진돗개 돌격',spDesc:'몸을 낮췄다가 턱을 딱딱 부딪치며 돌진해 세 번 물어뜯는다(한 번에 6, 최대 18). 돌진 중엔 맞아도 멈추지 않는다.'},
+  sub:'poop',subName:'똥 미사일',subBtn:'똥!',subDesc:'뒤돌아서 다섯 발. 사거리 안이면 어디를 보고 있든 무조건 명중, 막을 수도 없다. 멀수록 피해가 약하다.',spName:'진돗개 돌격',spDesc:'몸을 낮췄다가 턱을 딱딱 부딪치며 돌진해 세 번 물어뜯는다. 돌진 중엔 맞아도 멈추지 않는다.'},
  rabbit:{name:'멧토끼',title:'들판의 번개',bodyW:72,bodyH:42,legLen:24,legW:10,neckDX:26,neckDY:-16,headW:32,headH:27,snoutL:12,snoutH:14,
   col:{base:'#8f7a63',light:'#b9a487',dark:'#4a3e33',belly:'#e9e0d2',muzzle:'#cbbca6',chin:'#efe8dc',paw:'#d8cdbd',inner:'#e3b2ad',nose:'#9b6b66'},
   ear:'long',tail:'puff',pattern:'none',haunch:true,hp:85,speed:3.8,jump:16,scale:.95,special:'moon',aura:'#bfe3ff',noseR:3,
@@ -265,9 +265,9 @@ const SP={
   sub:'dirt',subName:'흙 뿌리기',subBtn:'흙!',subDesc:'코로 땅을 파헤쳐 흙덩이 다섯 개를 부채꼴로 날린다.',spName:'산돼지 광란',spDesc:'세 번 연달아 돌진한다. 돌진 사이마다 다시 겨누니 옆으로 계속 돌아야 한다.',
   fact:'멧돼지는 시속 40km 넘게 달리고, 수컷의 아래 엄니는 평생 자란다.'}
 };
-SP.gorani.speed=3.9;                                   // 고라니는 더 빠르다
+SP.gorani.speed=3.9;SP.raccoon.speed=3.3;   // 너구리는 너무 느려서 조금 빠르게                                   // 고라니는 더 빠르다
 Object.assign(SP.boar,{meterRate:1/1.5,subNeed:2});    // 멧돼지: 필살기 게이지 1.5배 느림·보조기는 2번 맞히면
-SP.hotteok.spDesc='몸을 낮췄다가 턱을 딱딱 부딪치며 돌진해 세 번 물어뜯는다(한 번에 6, 최대 18). 물린 상대는 2초간 마비. 돌진 중엔 맞아도 멈추지 않는다.';
+SP.hotteok.spDesc='몸을 낮췄다가 턱을 딱딱 부딪치며 돌진해 세 번 물어뜯는다. 물린 상대는 2초간 마비. 돌진 중엔 맞아도 멈추지 않는다.';
 SP.rabbit.spDesc+=' 아주 멀리 떨어져 있지 않으면 피할 수 없고, 맞은 상대는 멀리 날아간다.';
 SP.rabbit.subDesc='당근 세 개가 무조건 명중한다. 가까우면 약하고 멀리서 던질수록 세다.';
 SP.raccoon.spDesc+=' 당한 상대는 2초간 공격하지 못한다.';
@@ -279,7 +279,7 @@ Object.assign(SP.cat,{subNeed:2,spCost:50,meterRate:1.25,airAttack:true});   // 
 SP.cat.spDesc+=' 게이지 절반만 있으면 쓸 수 있어 가득 차면 두 번 쓴다. 또한 고양이만 점프 중에 물기·할퀴기로 덮칠 수 있다. 대신 한 대가 약하고 다 맞는다는 보장도 없다. 기력도 빨리 찬다.';
 SP.cat.subDesc+=' 2번 맞히면 쓸 수 있다.';
 /* 선택 화면용 짧은 설명 */
-const SHORT={hotteok:['돌진하며 3번 물기(최대 18), 물리면 2초 마비','뒤돌아 똥 5발 · 사거리 안이면 무조건 명중, 멀수록 약함'],
+const SHORT={hotteok:['돌진하며 3번 물기, 물리면 2초 마비','뒤돌아 똥 5발 · 사거리 안이면 무조건 명중, 멀수록 약함'],
  rabbit:['높이 뛰어 내리찍기 · 맞으면 멀리 날아감','당근 3개 무조건 명중 · 멀리서 던질수록 셈'],
  raccoon:['연막 뒤 순간이동 기습 · 2초간 공격 봉인','멀리 굴러가 들이받기 · 막을 수 없고 상대 보조기 2칸·기력 40을 깎음'],
  cat:['앞으로 사라졌다 상대 코앞에 나타나 냥냥펀치 · 게이지 절반으로 2번, 한 대는 약함 · 유일하게 점프 중 물기·할퀴기 가능','헤어볼 3발 유도 · 가까울수록 셈 · 2번 맞히면'],
@@ -291,12 +291,12 @@ SP.cat.subDesc=SP.cat.subDesc.replace(' 2번 맞히면 쓸 수 있다.','')+' �
 SP.gorani.subDesc='뒤돌아 뒷발로 걷어찬다. 사정권(300px)이 넓어 꽤 떨어져 있어도 무조건 맞고, 맞은 상대는 2초간 기절한다.';
 SP.deer.subDesc='앞발을 들었다가 땅을 찍어 충격파를 낸다. 사정권 안이면 무조건 맞고, 맞은 상대는 2초간 기절한다.';
 SP.jjang=Object.assign({},SP.hotteok,{name:'짱이',title:'그늘의 진돗개',col:{base:'#2a211a',light:'#4a3a2a',dark:'#0d0907',belly:'#45382d',muzzle:'#8f8982',chin:'#d8d2c8',paw:'#b9b1a6',inner:'#8d6262',nose:'#0b0807'},pattern:'brindleDark',aura:'#d06a8e',
- spShort:'돌진하며 3번 물기(최대 18), 물리면 2초 마비',subShort:'곧게 뻗는 긴 광선 · 막을 수 없음',sub:'beam',subName:'소리지르기 광선',subBtn:'광선',subDesc:'목청껏 짖어 곧은 광선을 쏜다. 사거리가 길고 막을 수 없다.',
+ spShort:'돌진하며 3번 물기, 물리면 2초 마비',subShort:'곧게 뻗는 긴 광선 · 막을 수 없음',sub:'beam',subName:'소리지르기 광선',subBtn:'광선',subDesc:'목청껏 짖어 곧은 광선을 쏜다. 사거리가 길고 막을 수 없다.',
  fact:'짱이는 호떡과 똑같이 생겼지만 털빛이 훨씬 어둡고 주둥이가 희끗하다. 짖는 소리는 호떡보다 크다.'});
 for(const k in SP)SP[k].key=k;
 SP.poodle={name:'누리',title:'우비 입은 하얀 푸들',bodyW:84,bodyH:44,legLen:40,legW:12,neckDX:28,neckDY:-30,headW:44,headH:40,snoutL:17,snoutH:15,eyeR:5.8,noseR:4.6,
  col:{base:'#f3ebdf',light:'#fffaf1',dark:'#d9ccbb',belly:'#fff7ec',muzzle:'#f1e6d6',chin:'#fbf3e8',paw:'#efe4d4',inner:'#efc0c0',nose:'#1e1514'},
- ear:'floppy',tail:'pom',pattern:'curly',raincoat:true,hp:95,speed:3.6,jump:14,scale:.9,special:'ice',aura:'#8fd8ff',
+ ear:'floppy',tail:'pom',pattern:'curly',raincoat:true,meterRate:1.25,subNeed:2,hp:95,speed:3.6,jump:14,scale:.9,special:'ice',aura:'#8fd8ff',
  spName:'얼음 미사일',spDesc:'입김으로 얼음 미사일을 일직선으로 쏜다. 선상에 있으면 막을 수 없고, 맞은 상대는 0.8초간 얼음이 되어 꼼짝 못한다.',
  sub:'kiss',subName:'뽀뽀 세 번',subBtn:'뽀뽀',subDesc:'가까운 상대에게 하트를 세 번 날린다. 맞으면 1.5초 동안 체력이 1씩 계속 깎이고(총 4) 그동안 몸이 느려진다.',
  spShort:'얼음 미사일 일직선 발사 · 막기 불가, 맞으면 0.8초 얼음',subShort:'가까운 상대에게 하트 3번 · 1.5초간 지속 피해(총 4)+둔화',
@@ -1228,7 +1228,7 @@ function makeF(key,x,z,ctrl){const sp=SP[key];const rig=buildAnimal(sp);beach.ad
  const ai=ctrl==='ai';
  const HP=game.mode==='story'?(ctrl==='ai'?storyBossHp():sp.hp):(VS_HP[key]||sp.hp);
  return{sp,key,x,z,y:0,vx:0,vz:0,vy:0,fx:1,fz:0,rotY:null,hp:HP,lagHp:HP,maxHp:HP,para:0,silence:0,root:0,weak:0,slow:0,freeze:0,dot:0,breaker:0,meter:0,sub:0,state:'idle',st:0,animT:Math.random()*100,walkPh:0,running:false,hitDone:false,hits:0,stun:0,
-  ctrl,isPlayer:!ai,flash:0,holdBack:false,combo:0,comboT:0,invis:false,atkId:0,rig,cur:null,prevRotY:null,spd:sp.speed*(ai?1+aiBuff()*.05:1),
+  ctrl,isPlayer:!ai,flash:0,holdBack:false,combo:0,comboT:0,invis:false,atkId:0,rig,cur:null,prevRotY:null,spd:(key==='raccoon'&&game.mode==='story'?3:sp.speed)*(ai?1+aiBuff()*.05:1),
   ai:{blockT:0,cool:30,moveT:0,mvx:0,mvz:0,side:1,sideT:0,seen:-1,dash:0,punish:0}}}
 function removeF(f){if(f){clearStatusFX(f);if(f.rig)disposeRig(f.rig)}}
 const neutral=f=>f.state==='idle'||f.state==='walk'||f.state==='jump';
@@ -1240,14 +1240,18 @@ const SLV={low:{lvl:s=>Math.max(0,s-2),buff:s=>s*.5,name:'하'},mid:{lvl:s=>s,bu
 const storyLv=()=>SLV[game.storyLvl]||SLV.mid;
 const aiLvl=()=>game.mode==='cpu'?game.cpuLvl:storyLv().lvl(game.stage);
 const aiBuff=()=>game.mode==='cpu'?Math.min(game.cpuLvl,3):storyLv().buff(game.stage);   // 오토봇 대전 상·중은 능력치가 아니라 판단력으로 어렵게   // 오토봇 대전은 고른 난이도, 스토리는 스테이지
-const gainM=(f,v)=>{f.meter=Math.min(100,f.meter+v*(f.sp.meterRate||1))};   // 멧돼지는 기력이 1.3배 느리게 찬다
-const subNeed=f=>f.sp.subNeed||3;
+const gainM=(f,v)=>{f.meter=Math.min(100,f.meter+v*((f.key==='poodle'&&!VSM())?1:(f.sp.meterRate||1)))};   // 멧돼지는 기력이 1.3배 느리게 찬다
+const subNeed=f=>(f.key==='poodle'&&!VSM())?3:(f.sp.subNeed||3);
 const spCost=f=>f.sp.spCost||100;                                           // 고양이는 게이지 절반으로 필살기 1번(가득 차면 2번)                                            // 보조기 충전에 필요한 공격 횟수(멧돼지 2)
 /* 2인·온라인 대전 전용 체력: 스토리에서는 뒷 스테이지 동물일수록 강하지만, 대전에서는 고르게 */
 /* 스토리 보스 체력: 스테이지가 올라갈수록 늘고, 난이도에 따라 하 90% · 중 100% · 상 115% */
 const STORY_HP=[85,100,115,130,150,175];
 const storyBossHp=()=>Math.round(STORY_HP[game.stage]*({low:.9,mid:1,high:1.15}[game.storyLvl]||1));
-const VS_HP={hotteok:100,jjang:100,poodle:95,rabbit:95,raccoon:100,cat:85,gorani:100,deer:105,boar:125};
+/* 대전 전용 기본 공격 사거리 보정: 몸집 큰 동물이 사거리로 압도하지 않게 작은 동물은 늘리고 큰 동물은 줄인다 */
+const VS_REACH={rabbit:1.5,poodle:1.4,cat:1.3,raccoon:1.15,gorani:1.03,hotteok:1,jjang:1,deer:.88,boar:.8};
+const VSM=()=>game.mode!=='story';   // 대전 밸런스는 스토리 모드에 적용하지 않는다
+const reachMul=f=>game.mode==='story'?1:(VS_REACH[f.key]||1);
+const VS_HP={hotteok:100,jjang:100,poodle:100,rabbit:100,raccoon:105,cat:85,gorani:105,deer:105,boar:115};
 /* 상태이상: para 마비(이동·공격·막기 불가) silence 공격 봉인 root 속박(이동 불가) weak 공격력 반감 — 프레임 단위 */
 const STATUS_TXT={para:['기절!','#ffe45c'],silence:['공격 봉인!','#c9a2ff'],root:['속박!','#7fe3ff'],weak:['공격력 반감!','#ff9a7a'],slow:['둔화!','#ff8fc8'],freeze:['얼음!','#9fe8ff'],dot:null};
 const STATUS_KEYS=['para','silence','root','weak','slow','freeze','dot'];
@@ -1305,7 +1309,7 @@ const SPECIALS={
  rush:{dur:48,start(f){say(f,'왈왈!');sfx('bark');f.dx=f.fx;f.dz=f.fz},
   update(f,o,st){if(st<10){f.vx*=.7;f.vz*=.7}else if(st<34){f.vx=f.dx*12;f.vz=f.dz*12;if((st-10)%7===0)f.hitDone=false;
     const ph=(st-10)%7;if(ph===4){sfx('bite');const m=fp(f,(reachPx(f,.9))*PX,.15);for(let i=0;i<3;i++)spark(m.x,m.y,m.z,'#ffffff')}   // 달리면서 턱을 딱딱 부딪친다
-    if(!f.hitDone&&f.hits<3&&ph>=3&&inReach(f,o,1)){f.hitDone=true;const last=f.hits===2;if(applyHit(f,o,6,last?9:11.5,last?22:14,{color:'#ff8fb0',kx:f.dx,kz:f.dz,big:last,launch:last?5:0,status:{para:120}})){f.hits++;const m=fp(o,0,.5);popText(m.x,m.y+.4,m.z,'콱!','#ffffff',26)}}
+    if(!f.hitDone&&f.hits<3&&ph>=3&&inReach(f,o,1)){f.hitDone=true;const last=f.hits===2;if(applyHit(f,o,VSM()?5:6,last?9:11.5,last?22:14,{color:'#ff8fb0',kx:f.dx,kz:f.dz,big:last,launch:last?5:0,status:{para:120}})){f.hits++;const m=fp(o,0,.5);popText(m.x,m.y+.4,m.z,'콱!','#ffffff',26)}}
     const q=fp(f,-.8,(Math.random()-.5)*.5,(Math.random()-.5)*.6);fire(q.x,q.y,q.z,Math.random()<.5?'#ff6f91':'#ffb36b');
     if(st%2){const w=fp(f,-1.5,(Math.random()-.5)*1.2);speedLine(w.x,w.y,w.z,f.fx,f.fz,'#ffd1dc')}
     if(st%4===0){const g=fp(f,-.6);dust(g.x,g.z)}}else{f.vx*=.8;f.vz*=.8}},
@@ -1315,7 +1319,7 @@ const SPECIALS={
   pose(f,p,st){if(st<18){const k=st/18;p.lean=-.22*k;p.headDY=-12*k;p.mouth=.3*k}else{p.lean=-.22;p.headDY=-16;p.headDX=6;p.headRot=-.25;p.mouth=st<44?1:.3;p.eyes='squint'}}},
  ice:{dur:42,start(f){say(f,'후우~','#d8f6ff');sfx('charge')},   // 푸들: 얼음 미사일
   update(f,o,st){f.vx*=.7;f.vz*=.7;if(st<14&&st%3===0){const q=fp(f,reachPx(f,.9)*PX,.15,(Math.random()-.5)*.4);spark(q.x,q.y,q.z,'#bff0ff')}
-   if(st===14){const k=60*f.sp.scale;projectiles.push({kind:'ice',x:f.x+f.fx*k,z:f.z+f.fz*k,y:-48,vx:f.fx*11,vz:f.fz*11,owner:f,dmg:12,life:80,t:0,obj:(()=>{const g=makeIce();g.scale.set(1.5,2.1,2.1);return g})(),color:'#9fe8ff',status:{freeze:48}});sfx('beam');game.shake=Math.max(game.shake,6)}},
+   if(st===14){const k=60*f.sp.scale;projectiles.push({kind:'ice',x:f.x+f.fx*k,z:f.z+f.fz*k,y:-48,vx:f.fx*11,vz:f.fz*11,owner:f,dmg:VSM()?14:12,life:80,t:0,obj:(()=>{const g=makeIce();g.scale.set(1.5,2.1,2.1);return g})(),color:'#9fe8ff',status:{freeze:48}});sfx('beam');game.shake=Math.max(game.shake,6)}},
   pose(f,p,st){if(st<14){const k=st/14;p.lean=-.25*k;p.headRot=-.35*k;p.headDY=-6*k;p.mouth=.4*k;p.crouch=3*k}else if(st<26){p.lean=-.08;p.headDX=12;p.headRot=.15;p.mouth=1;p.eyes='squint'}else{const k=1-(st-26)/16;p.headDX=12*k;p.mouth=.5*k}}},
  moon:{dur:400,start(f){f.vy=-19;f.y=-1;f.vx=f.vz=0;f.dived=false;f.landed=false;say(f,'깡총!','#dff1ff')},
   update(f,o,st){if(!f.dived&&f.vy>-2){f.dived=true;face(f,o);let vx=(o.x-f.x)/16,vz=(o.z-f.z)/16;const m=Math.hypot(vx,vz);if(m>24){vx*=24/m;vz*=24/m}f.vx=vx;f.vz=vz;f.vy=15}
@@ -1341,7 +1345,7 @@ const SPECIALS={
  antler:{dur:64,start(f){say(f,f.retrying?'한 번 더!':'우오오!','#d8ffc4');f.dx=f.fx;f.dz=f.fz},
   update(f,o,st){if(st===63&&!f.landed&&!f.retrying){f.meter=Math.max(f.meter,spCost(f));f.freeRetry=true;const q=fp(f,0,1.3*f.sp.scale);popText(q.x,q.y+.4,q.z,'빗나감 · 한 번 더 쓸 수 있다!','#d8ffc4',22);sfx('charge')}   // 실패하면 기력을 돌려줘 한 번 더
    if(st<20){f.vx*=.6;f.vz*=.6;if(st%5===0){const g=fp(f,.5);dust(g.x,g.z)}}
-   else if(st<44){f.vx=f.dx*12.5;f.vz=f.dz*12.5;if(st%3===0){const g=fp(f,-.7);dust(g.x,g.z)}if(st%2){const w=fp(f,-1.6,(Math.random()-.5)*1.4);speedLine(w.x,w.y,w.z,f.fx,f.fz,'#c9ffb0')}if(!f.hitDone&&inReach(f,o,.9)){f.hitDone=true;applyHit(f,o,21,13,30,{launch:9,big:true,status:{weak:150}})}}
+   else if(st<44){f.vx=f.dx*12.5;f.vz=f.dz*12.5;if(st%3===0){const g=fp(f,-.7);dust(g.x,g.z)}if(st%2){const w=fp(f,-1.6,(Math.random()-.5)*1.4);speedLine(w.x,w.y,w.z,f.fx,f.fz,'#c9ffb0')}if(!f.hitDone&&inReach(f,o,.9)){f.hitDone=true;applyHit(f,o,VSM()?18:21,13,30,{launch:9,big:true,status:{weak:150}})}}
    else{f.vx*=.85;f.vz*=.85}},
   pose(f,p,st){if(st<20){p.crouch=8;p.headRot=.55;p.headDY=14;p.headDX=-4;p.legs[2]=[(st%10<5)?.5:0,.3];p.eyes='squint'}else if(st<44){gallopPose(p,f.animT*.55,.9);p.headRot=.65;p.headDY=18;p.headDX=10}else{p.headRot=.3;p.headDY=8}}},
  stampede:{dur:100,start(f){say(f,'꾸에에엑!','#ffd1a8');sfx('grunt');f.dx=f.fx;f.dz=f.fz},
@@ -1374,19 +1378,19 @@ const POOP_RANGE=360;
 function poopFire(f,o){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d;f.pdx=ux;f.pdz=uz;
  const r0=halfW(f)*.6,inRange=d<=POOP_RANGE&&o.state!=='ko';
  for(let i=0;i<5;i++){const k=i-2;
-  const L={kind:'poop',x:f.x+ux*r0,z:f.z+uz*r0,y:-38,owner:f,dmg:4-2.5*clamp((d-140)/(POOP_RANGE-140),0,1),t:0,obj:makeLob('poop')};   // 멀수록 약하다: 140px까지 한 발 4 → 사거리 끝 1.5
+  const L={kind:'poop',x:f.x+ux*r0,z:f.z+uz*r0,y:-38,owner:f,dmg:VSM()?3.4-2*clamp((d-140)/(POOP_RANGE-140),0,1):4-2.5*clamp((d-140)/(POOP_RANGE-140),0,1),t:0,obj:makeLob('poop')};   // 멀수록 약하다: 140px까지 한 발 4 → 사거리 끝 1.5
   if(inRange){L.lock=o;L.sx=L.x;L.sz=L.z;L.sy=L.y;L.T=Math.max(20,Math.round(d/8))+i*3;L.side=k*Math.min(70,d*.32);L.arc=55+Math.abs(k)*14}
   else{const a=k*.3,c=Math.cos(a),s=Math.sin(a),vx=ux*c-uz*s,vz=ux*s+uz*c,sp=POOP_RANGE/24;L.vx=vx*sp;L.vz=vz*sp;L.vy=-8.6;L.g=.72;L.miss=true}
   lobs.push(L)}}
 /* 당근 폭격: 거리 제한 없이 무조건 명중. 가까우면 약하고(한 발 2) 멀수록 세다(400px 이상 한 발 5.5) */
 function carrotFire(f,o){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d;f.pdx=ux;f.pdz=uz;const r0=halfW(f)*.6;
  if(o.state==='ko')return;
- for(let i=0;i<3;i++){const k=i-1;lobs.push({kind:'carrot',x:f.x+ux*r0,z:f.z+uz*r0,y:-40,owner:f,dmg:2+3.5*clamp((d-100)/300,0,1),t:0,obj:makeLob('carrot'),lock:o,sx:f.x+ux*r0,sz:f.z+uz*r0,sy:-40,T:Math.max(18,Math.round(d/9))+i*4,side:k*Math.min(60,d*.3),arc:70+Math.abs(k)*16})}}
+ for(let i=0;i<3;i++){const k=i-1;lobs.push({kind:'carrot',x:f.x+ux*r0,z:f.z+uz*r0,y:-40,owner:f,dmg:VSM()?3+2.8*clamp((d-100)/300,0,1):2+3.5*clamp((d-100)/300,0,1),t:0,obj:makeLob('carrot'),lock:o,sx:f.x+ux*r0,sz:f.z+uz*r0,sy:-40,T:Math.max(18,Math.round(d/9))+i*4,side:k*Math.min(60,d*.3),arc:70+Math.abs(k)*16})}}
 /* 뽀뽀: 가까운 범위(KISS_RANGE) 안이면 하트가 따라가 무조건 명중. 세 발 합 1 + 1.5초 지속 피해 3(0.5초마다 1) = 총 4, 그동안 둔화 */
-const KISS_RANGE=190;
+const KISS_RANGE=230;
 function kissFire(f,o,i){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d;f.pdx=ux;f.pdz=uz;const r0=halfW(f)*.7;
  const L={kind:'heart',x:f.x+ux*r0,z:f.z+uz*r0,y:-48,owner:f,dmg:1/3,t:0,obj:makeLob('heart'),status:{slow:90,dot:90}};
- if(d<=KISS_RANGE&&o.state!=='ko'){L.lock=o;L.sx=L.x;L.sz=L.z;L.sy=L.y;L.T=Math.max(10,Math.round(d/9));L.side=(i-1)*Math.min(40,d*.3);L.arc=26}
+ if(d<=(VSM()?KISS_RANGE:190)&&o.state!=='ko'){L.lock=o;L.sx=L.x;L.sz=L.z;L.sy=L.y;L.T=Math.max(10,Math.round(d/9));L.side=(i-1)*Math.min(40,d*.3);L.arc=26}
  else{L.vx=ux*7;L.vz=uz*7;L.vy=-2;L.g=.2;L.miss=true}
  lobs.push(L)}
 const SUBS={
@@ -1398,7 +1402,7 @@ const SUBS={
   pose(f,p,st){if(st<14){const k=st/14;p.lean=-.35*k;p.headRot=-.6*k;p.headDY=-6*k;p.legs[0]=[.8*k,-.3*k];p.legs[2]=[.9*k,-.3*k];p.auto=false;p.mouth=.3*k}else{const k=clamp(1-(st-14)/16,0,1);p.lean=-.1*k;p.headRot=.5*k;p.headDX=8*k;p.mouth=.6*k;p.eyes='squint'}}},
  roll:{dur:54,start(f,o){face(f,o);f.dx=f.fx;f.dz=f.fz;say(f,'데굴데굴!','#e3e8ee');sfx('roll')},
   update(f,o,st){if(st<8){f.vx*=.6;f.vz*=.6}else if(st<44){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;f.dx+=(dx/d-f.dx)*.13;f.dz+=(dz/d-f.dz)*.13;const n=Math.hypot(f.dx,f.dz)||1;f.dx/=n;f.dz/=n;f.vx=f.dx*10.5;f.vz=f.dz*10.5;
-    if(st%3===0){const g=fp(f,-.6,0,(Math.random()-.5)*.6);dust(g.x,g.z)}if(!f.hitDone&&dist2(f,o)<halfW(f)+halfW(o)+44&&Math.abs(o.y-f.y)<70){f.hitDone=true;applyHit(f,o,9,9,20,{unblockable:true,big:true,kx:f.dx,kz:f.dz,drain:true})}}
+    if(st%3===0){const g=fp(f,-.6,0,(Math.random()-.5)*.6);dust(g.x,g.z)}if(!f.hitDone&&dist2(f,o)<halfW(f)+halfW(o)+44&&Math.abs(o.y-f.y)<70){f.hitDone=true;applyHit(f,o,VSM()?10:9,9,20,{unblockable:true,big:true,kx:f.dx,kz:f.dz,drain:true})}}
    else{f.vx*=.8;f.vz*=.8}},
   pose(f,p,st){if(st>=8&&st<44){p.crouch=f.sp.legLen*.55;p.roll=(st-8)*.5;p.legs=[[1.3,-1.6],[-1.3,1.6],[1.3,-1.6],[-1.3,1.6]];p.auto=false;p.headDY=10;p.headDX=-8;p.headRot=.9;p.eyes='squint';p.mouth=.2}else if(st<8){const k=st/8;p.crouch=6*k;p.headDY=4*k;p.headRot=.3*k}else{const k=1-(st-44)/10;p.crouch=6*k;p.eyes='squint'}}},
  hair:{dur:34,start(f,o){face(f,o);f.pdx=f.fx;f.pdz=f.fz;say(f,'캑! 캑!','#ffd59a')},
@@ -1494,7 +1498,7 @@ function updateF(f,o,inp){
    if(sh&&f.st===A.s-1&&inp.shoveHeld&&f.charge<24){f.st--;f.charge++;if(f.charge%4===0){const q=fp(f,.3,0,(Math.random()-.5)*.6);spark(q.x,q.y,q.z,f.charge>=10?'#ffd27a':'#fff4d6')}if(f.charge===10){const q=fp(f);ring(q.x,q.y,q.z,'#ffd27a',.8);sfx('charge')}}
    if(sh&&f.st>=A.s&&f.st<A.s+2){const k=f.charge>=10?2:1.2;f.vx+=f.fx*k;f.vz+=f.fz*k}
    if(f.st<A.s+A.a&&!f.hitDone&&o.state!=='ko'){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;f.fx+=(dx/d-f.fx)*.35;f.fz+=(dz/d-f.fz)*.35;const n=Math.hypot(f.fx,f.fz)||1;f.fx/=n;f.fz/=n}   // 공격 준비 중엔 상대를 계속 따라 돈다
-   if(f.st>=A.s&&f.st<A.s+A.a&&!f.hitDone&&inReach(f,o,A.reach*(f.atkMove?1.2:1.05),true)){f.hitDone=true;if(sh){const big=f.charge>=10;applyHit(f,o,big?4:2,big?27:12,big?28:16,{push:true,big,color:big?'#ffd27a':'#fff4d6'})}else applyHit(f,o,A.dmg,A.kb,A.stun)}
+   if(f.st>=A.s&&f.st<A.s+A.a&&!f.hitDone&&inReach(f,o,A.reach*(f.atkMove?1.2:1.05)*reachMul(f),true)){f.hitDone=true;if(sh){const big=f.charge>=10;applyHit(f,o,big?4:2,big?27:12,big?28:16,{push:true,big,color:big?'#ffd27a':'#fff4d6'})}else applyHit(f,o,A.dmg,A.kb,A.stun)}
    if(f.state==='scratch'&&f.st===A.s){const q=fp(f,reachPx(f,.75)*PX,0);slashFX(q.x,q.y,q.z,scrDir(f))}
    if(f.st>=A.s+A.a+A.r)setState(f,f.y<0?'jump':'idle');break}
   case 'special':{const Sx=SPECIALS[f.sp.special];Sx.update(f,o,f.st);if(f.state==='special'&&f.st>=Sx.dur)setState(f,f.y<0?'jump':'idle');break}
@@ -1523,7 +1527,7 @@ function separate(a,b){
 const SUB_RANGE={poop:300,carrot:9999,kick:290,stomp:210,kiss:170,beam:320,hair:150,dirt:240,roll:300};
 function proAI(f,o,s,a,inp,d,ux,uz,px,pz){
  const R=Math.random,stopped=o.para>0||o.freeze>0||o.state==='hit'||o.root>0;
- const biteR=reachPx(f,1.3*1.05)+halfW(o)*.5,scrR=reachPx(f,1.1*1.05)+halfW(o)*.5;
+ const rm=reachMul(f),biteR=reachPx(f,1.3*1.05*rm)+halfW(o)*.5,scrR=reachPx(f,1.1*1.05*rm)+halfW(o)*.5;
  const go=(mx,mz,t,extra)=>{a.plan=Object.assign({mx,mz},extra||{});a.thinkT=t;Object.assign(inp,a.plan);return true};
  const side=()=>go(px*a.side-ux*.2,pz*a.side-uz*.2,14,{run:true});
  // 막는 중이면 계속 막는다(뒤로 버티기)
@@ -1566,7 +1570,7 @@ function aiInput(f,o,lvl){
  if(a.blockT>0&&f.y>=0){inp.mx=-ux*.8;inp.mz=-uz*.8;return inp}
  if(f.state==='jump'&&f.sp.airAttack&&d<reachPx(f,1.3)+halfW(o)+20&&Math.random()<.35){inp[Math.random()<.5?'bite':'scratch']=true;return inp}   // 고양이는 점프 중에도 덮친다
  if(!neutral(f)||f.state==='jump')return inp;
- const reach=reachPx(f,1)+halfW(o)*.45,aggr=.95+lvl*.2;
+ const reach=reachPx(f,reachMul(f))+halfW(o)*.45,aggr=.95+lvl*.2;
  if(a.punish>0){a.punish--;if(d<reach+10){inp[Math.random()<.6?'bite':'scratch']=true;a.cool=6;a.punish=0;return inp}}
  if(f.meter>=spCost(f)&&d<(f.sp.special==='scream'||f.sp.special==='ice'?600:300)&&Math.random()<.07*aggr){inp.special=true;return inp}
  if(a.moveT>0){a.moveT--;inp.mx=a.mvx;inp.mz=a.mvz;if(a.dash>0)inp.dash=true}
