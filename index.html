@@ -303,7 +303,7 @@ SP.poodle={name:'누리',title:'우비 입은 하얀 푸들',bodyW:84,bodyH:44,l
 /* 수달: 고양이만큼 빠르고 공격이 빠른 대신 한 대가 약하다(atkSpd 공격 동작 시간 배율 · dmgMul 기본 공격 피해 배율) */
 SP.otter={name:'수달',title:'계곡의 장난꾸러기',bodyW:104,bodyH:36,legLen:16,legW:10,neckDX:30,neckDY:-12,headW:32,headH:26,snoutL:11,snoutH:12,eyeR:4.4,noseR:4.2,
  col:{base:'#4f3b2a',light:'#6e5843',dark:'#241b13',belly:'#a89a80',muzzle:'#968468',chin:'#d6c9b3',paw:'#33271e',inner:'#8c6e60',nose:'#17110f'},
- ear:'tiny',tail:'otter',pattern:'sleek',whiskers:true,webbed:true,hp:95,speed:4,jump:13,scale:.95,special:'waterjet',aura:'#7fd8ff',atkSpd:.75,dmgMul:.75,
+ ear:'tiny',tail:'otter',pattern:'sleek',whiskers:true,webbed:true,hp:95,speed:4,jump:13,scale:.95,special:'waterjet',aura:'#7fd8ff',atkSpd:.75,dmgMul:.75,dmgMulVS:.66,
  spName:'워터제트',spDesc:'꼬리로 서서 팽이처럼 돌며 3초 동안 사방에 물을 뿌린다. 도는 동안 방향키로 팽이를 몰 수 있고, 물줄기에 닿은 상대는 막아도 맞고 밀려난다. 한 번은 약하지만 쫓아가며 여러 번 맞힌다. 쓰는 동안은 완전 무적이라 어떤 공격도 기술도 통하지 않는다.',
  sub:'bubble',subName:'물방울 올가미',subBtn:'물방울',subDesc:'물방울을 날려 상대를 감싼 뒤 코앞까지 끌어당기고 터뜨린다. 중거리(330px) 안이면 무조건 명중. 피해는 약하지만 끌려온 상대는 2초 동안 공격도 기술도 못 쓴다.',
  spShort:'팽이처럼 돌며 3초간 물 뿌리기 · 방향키로 조종 · 쓰는 동안 완전 무적 · 닿으면 밀려남, 막기 불가',subShort:'물방울로 감싸 끌어당긴 뒤 터뜨림 · 330px 안 무조건 명중 · 끌려오면 2초간 공격 봉인',
@@ -1313,10 +1313,10 @@ const spCost=f=>f.sp.spCost||100;                                           // �
 const STORY_HP=[85,100,115,130,150,160,175];
 const storyBossHp=()=>Math.round(STORY_HP[game.stage]*({low:.9,mid:1,high:1.15}[game.storyLvl]||1));
 /* 대전 전용 기본 공격 사거리 보정: 몸집 큰 동물이 사거리로 압도하지 않게 작은 동물은 늘리고 큰 동물은 줄인다 */
-const VS_REACH={rabbit:1.5,poodle:1.4,cat:1.3,otter:1.2,raccoon:1.15,gorani:1.03,hotteok:1,jjang:1,deer:.88,boar:.8};
+const VS_REACH={rabbit:1.53,poodle:1.39,cat:1.4,otter:1.18,raccoon:1.21,gorani:1.06,hotteok:.97,jjang:.97,deer:.86,boar:.81};   // '내 사거리 − 상대 몸 반폭×0.6'이 모두 같아지게(몸집 큰 쪽은 맞히기도 쉬우니 그만큼 덜 늘림)
 const VSM=()=>game.mode!=='story';   // 대전 밸런스는 스토리 모드에 적용하지 않는다
 const reachMul=f=>game.mode==='story'?1:(VS_REACH[f.key]||1);
-const VS_HP={hotteok:100,jjang:100,poodle:100,rabbit:100,raccoon:105,cat:85,otter:95,gorani:105,deer:105,boar:110};
+const VS_HP={hotteok:100,jjang:100,poodle:100,rabbit:100,raccoon:110,cat:90,otter:90,gorani:105,deer:110,boar:105};
 /* 상태이상: para 마비(이동·공격·막기 불가) silence 공격 봉인 root 속박(이동 불가) weak 공격력 반감 — 프레임 단위 */
 const STATUS_TXT={para:['기절!','#ffe45c'],silence:['공격 봉인!','#c9a2ff'],root:['속박!','#7fe3ff'],weak:['공격력 반감!','#ff9a7a'],slow:['둔화!','#ff8fc8'],freeze:['얼음!','#9fe8ff'],dot:null};
 const STATUS_KEYS=['para','silence','root','weak','slow','freeze','dot'];
@@ -1339,7 +1339,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  // 끌어당김(수달 물방울): 넉백이 공격자 쪽을 향하고, 세기는 코앞까지 끌려올 만큼(맞은 뒤 마찰 .82 → 총 이동 ≈ kb×5.5)
  if(o.pull&&!o.fromNet){const dx=a.x-d.x,dz=a.z-d.z,dd=Math.hypot(dx,dz)||1,travel=Math.max(0,dd-(halfW(a)+halfW(d)+4));kx=dx/dd;kz=dz/dd;kb=grounded?travel*.22:travel/Math.max(10,stun)}
  if(a.ctrl==='ai')dmg*=1.0+aiBuff()*.06;
- if(a.sp.dmgMul&&BASIC[a.state]&&!o.fromNet)dmg*=a.sp.dmgMul;   // 수달: 기본 공격이 빠른 대신 약하다
+ if(a.sp.dmgMul&&BASIC[a.state]&&!o.fromNet)dmg*=(VSM()&&a.sp.dmgMulVS)||a.sp.dmgMul;   // 수달: 기본 공격이 빠른 대신 약하다(대전에서는 더 약하게)
  if(a.weak>0&&!o.fromNet)dmg*=.5;   // 사슴 들이받기에 맞은 쪽은 공격력 반감
  // 온라인: 상대 캐릭터의 피해 판정은 그쪽 기기가 한다 → 여기선 효과만 보여 주고 기록을 보낸다
  if(isRemote(d)&&!o.fromNet){ring(h.x,h.y,h.z,o.color||a.sp.aura,.9);NET.sendHit({dmg,kb,stun,kx,kz,o});chargeSub(a);a.landed=true;return true}
@@ -1380,17 +1380,17 @@ const SPECIALS={
  rush:{dur:48,start(f){say(f,'왈왈!');sfx('bark');f.dx=f.fx;f.dz=f.fz},
   update(f,o,st){if(st<10){f.vx*=.7;f.vz*=.7}else if(st<34){f.vx=f.dx*12;f.vz=f.dz*12;if((st-10)%7===0)f.hitDone=false;
     const ph=(st-10)%7;if(ph===4){sfx('bite');const m=fp(f,(reachPx(f,.9))*PX,.15);for(let i=0;i<3;i++)spark(m.x,m.y,m.z,'#ffffff')}   // 달리면서 턱을 딱딱 부딪친다
-    if(!f.hitDone&&f.hits<3&&ph>=3&&inReach(f,o,1)){f.hitDone=true;const last=f.hits===2;if(applyHit(f,o,VSM()?5:6,last?9:11.5,last?22:14,{color:'#ff8fb0',kx:f.dx,kz:f.dz,big:last,launch:last?5:0,status:{para:120}})){f.hits++;const m=fp(o,0,.5);popText(m.x,m.y+.4,m.z,'콱!','#ffffff',26)}}
+    if(!f.hitDone&&f.hits<3&&ph>=3&&inReach(f,o,1)){f.hitDone=true;const last=f.hits===2;if(applyHit(f,o,VSM()?5:6,last?9:11.5,last?22:14,{color:'#ff8fb0',kx:f.dx,kz:f.dz,big:last,launch:last?5:0,status:{para:VSM()?60:120}})){f.hits++;const m=fp(o,0,.5);popText(m.x,m.y+.4,m.z,'콱!','#ffffff',26)}}
     const q=fp(f,-.8,(Math.random()-.5)*.5,(Math.random()-.5)*.6);fire(q.x,q.y,q.z,Math.random()<.5?'#ff6f91':'#ffb36b');
     if(st%2){const w=fp(f,-1.5,(Math.random()-.5)*1.2);speedLine(w.x,w.y,w.z,f.fx,f.fz,'#ffd1dc')}
     if(st%4===0){const g=fp(f,-.6);dust(g.x,g.z)}}else{f.vx*=.8;f.vz*=.8}},
   pose(f,p,st){if(st<10){p.crouch=12;p.headDX=-6;p.headDY=4;p.mouth=.4;p.lean=.08}else if(st<34){gallopPose(p,f.animT*.6,.95);const ph=(st-10)%7,open=ph<3;p.mouth=open?1:.05;p.headDX=open?10:26;p.headDY=open?4:9;p.headRot=open?-.15:.12;p.eyes=open?'open':'squint';p.tail=.6}else{p.mouth=.3;p.headDX=8}}},
  scream:{dur:52,start(f){say(f,'끼에에엑!!','#fff1a8')},
-  update(f,o,st){if(st<18){f.vx*=.7;f.vz*=.7}if(st===18){const k=70*f.sp.scale;projectiles.push({x:f.x+f.fx*k,z:f.z+f.fz*k,y:-62,vx:f.fx*8.5,vz:f.fz*8.5,owner:f,dmg:15,life:110,t:0,obj:makeWave()});sfx('scream')}},
+  update(f,o,st){if(st<18){f.vx*=.7;f.vz*=.7}if(st===18){const k=70*f.sp.scale;projectiles.push({x:f.x+f.fx*k,z:f.z+f.fz*k,y:-62,vx:f.fx*(VSM()?9.5:8.5),vz:f.fz*(VSM()?9.5:8.5),owner:f,dmg:VSM()?16:15,life:110,t:0,obj:makeWave()});sfx('scream')}},
   pose(f,p,st){if(st<18){const k=st/18;p.lean=-.22*k;p.headDY=-12*k;p.mouth=.3*k}else{p.lean=-.22;p.headDY=-16;p.headDX=6;p.headRot=-.25;p.mouth=st<44?1:.3;p.eyes='squint'}}},
  ice:{dur:42,start(f){say(f,'후우~','#d8f6ff');sfx('charge')},   // 푸들: 얼음 미사일
   update(f,o,st){f.vx*=.7;f.vz*=.7;if(st<14&&st%3===0){const q=fp(f,reachPx(f,.9)*PX,.15,(Math.random()-.5)*.4);spark(q.x,q.y,q.z,'#bff0ff')}
-   if(st===14){const k=60*f.sp.scale;projectiles.push({kind:'ice',x:f.x+f.fx*k,z:f.z+f.fz*k,y:-48,vx:f.fx*11,vz:f.fz*11,owner:f,dmg:VSM()?14:12,life:80,t:0,obj:(()=>{const g=makeIce();g.scale.set(1.5,2.1,2.1);return g})(),color:'#9fe8ff',status:{freeze:48}});sfx('beam');game.shake=Math.max(game.shake,6)}},
+   if(st===14){const k=60*f.sp.scale;projectiles.push({kind:'ice',x:f.x+f.fx*k,z:f.z+f.fz*k,y:-48,vx:f.fx*(VSM()?12.5:11),vz:f.fz*(VSM()?12.5:11),owner:f,dmg:VSM()?16:12,life:80,t:0,obj:(()=>{const g=makeIce();g.scale.set(1.5,2.1,2.1);return g})(),color:'#9fe8ff',status:{freeze:48}});sfx('beam');game.shake=Math.max(game.shake,6)}},
   pose(f,p,st){if(st<14){const k=st/14;p.lean=-.25*k;p.headRot=-.35*k;p.headDY=-6*k;p.mouth=.4*k;p.crouch=3*k}else if(st<26){p.lean=-.08;p.headDX=12;p.headRot=.15;p.mouth=1;p.eyes='squint'}else{const k=1-(st-26)/16;p.headDX=12*k;p.mouth=.5*k}}},
  moon:{dur:400,start(f){f.vy=-19;f.y=-1;f.vx=f.vz=0;f.dived=false;f.landed=false;say(f,'깡총!','#dff1ff')},
   update(f,o,st){if(!f.dived&&f.vy>-2){f.dived=true;face(f,o);let vx=(o.x-f.x)/16,vz=(o.z-f.z)/16;const m=Math.hypot(vx,vz);if(m>24){vx*=24/m;vz*=24/m}f.vx=vx;f.vz=vz;f.vy=15}
@@ -1410,7 +1410,7 @@ const SPECIALS={
    if(st<12){f.vx=f.dx*13;f.vz=f.dz*13;if(st%2===0){const g=fp(f,0,.3);const s=mkSprite(TX.puff,C('#ffe2b8'),false);s.position.set(g.x,g.y,g.z);addPart({obj:s,vy:.006,life:14,s0:.3,s1:.7,fade:true,op:.5})}}
    else if(st===12){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;const k=Math.min(d,440);const tx=f.x+dx/d*k,tz=f.z+dz/d*k;if(d<=440){f.x=o.x-dx/d*Math.max(60,halfW(o)+halfW(f)*.6);f.z=o.z-dz/d*Math.max(60,halfW(o)+halfW(f)*.6)}else{f.x=tx;f.z=tz}clampField(f);face(f,o);f.vx=f.vz=0;f.invis=false;const q=fp(f);smokeBurst(q.x,q.y,q.z);sfx('smoke');say(f,'냥냥냥냥!','#ffd59a')}
    else{const s2=st-12,v=s2<48?1.6:.3;f.vx=f.fx*v;f.vz=f.fz*v;if(s2<48&&s2%8===2){f.hitDone=false;const q=fp(f,reachPx(f,.75)*PX,.1);slashFX(q.x,q.y,q.z,scrDir(f));sfx('scratch')}
-    if(s2<48&&s2%8>=2&&s2%8<5&&!f.hitDone&&inReach(f,o,.95)){f.hitDone=true;applyHit(f,o,2.6,1.6,12,{color:'#ffd59a',noMeter:true})}}},
+    if(s2<48&&s2%8>=2&&s2%8<5&&!f.hitDone&&inReach(f,o,.95)){f.hitDone=true;applyHit(f,o,VSM()?3:2.6,1.6,12,{color:'#ffd59a',noMeter:true})}}},
   pose(f,p,st){if(st<12){tuckPose(p,-1);p.lean=-.35;return}const s2=st-12,ph=s2%8,which=Math.floor(s2/8)%2,k=ph/8;p.lean=-.3;p.mouth=.7;p.crouch=2;
    if(s2>=48){p.lean=-.3*(1-(s2-48)/8)}else{const sw=[1.7-1.6*k,-.4+.6*k],rest=[.4,.2];p.legs[2]=which?sw:rest;p.legs[0]=which?rest:sw}}},
  antler:{dur:64,start(f){say(f,f.retrying?'한 번 더!':'우오오!','#d8ffc4');f.dx=f.fx;f.dz=f.fz},
@@ -1452,7 +1452,7 @@ const SPECIALS={
    if(st===16||st===42||st===68){face(f,o);f.dx=f.fx;f.dz=f.fz;f.hitDone=false;sfx('grunt');const g=fp(f,-.5);for(let i=0;i<5;i++)dust(g.x+(Math.random()-.5),g.z+(Math.random()-.5),true)}
    if(ph==='wind'){f.vx*=.6;f.vz*=.6;if(st%4===0){const g=fp(f,.6,0,(st%8?1:-1)*.3);dust(g.x,g.z)}}
    else if(ph==='charge'){f.vx=f.dx*11;f.vz=f.dz*11;if(st%2===0){const g=fp(f,-.9,0,(Math.random()-.5)*.8);dust(g.x,g.z)}if(st%2){const w=fp(f,-1.7,(Math.random()-.5)*1.4);speedLine(w.x,w.y,w.z,f.dx,f.dz,'#ffc9a0')}
-    if(!f.hitDone){const r=rel(f,o);if(r.along>-10&&r.along<reachPx(f,.95)+halfW(o)*.6&&r.perp<halfW(o)*1.1+14&&o.state!=='ko'){f.hitDone=true;const air=o.y<-4;const D=VSM()?12:13,ok=applyHit(f,o,air?D*2/3:D,11,26,{launch:6,big:true,kx:f.dx,kz:f.dz});if((ok||isRemote(f))&&o.dirtMark>0)f.liftReady=true;if(air){const q=fp(o,0,.6);popText(q.x,q.y+.5,q.z,'점프로 감소','#cfe8ff',18)}}}}
+    if(!f.hitDone){const r=rel(f,o);if(r.along>-10&&r.along<reachPx(f,.95)+halfW(o)*.6&&r.perp<halfW(o)*1.1+14&&o.state!=='ko'){f.hitDone=true;const air=o.y<-4;const D=VSM()?11:13,ok=applyHit(f,o,air?D*2/3:D,11,26,{launch:6,big:true,kx:f.dx,kz:f.dz});if((ok||isRemote(f))&&o.dirtMark>0)f.liftReady=true;if(air){const q=fp(o,0,.6);popText(q.x,q.y+.5,q.z,'점프로 감소','#cfe8ff',18)}}}}
    else{f.vx*=.7;f.vz*=.7;if(ph==='pause')face(f,o)}},
   pose(f,p,st){const ch=(st>=16&&st<34)||(st>=42&&st<60)||(st>=68&&st<86);
    if(f.lifting&&st>=86){const s2=st-86;if(s2<6){gallopPose(p,f.animT*.6,.9);p.crouch=10;p.headRot=.7;p.headDY=16;p.headDX=6;p.eyes='squint';p.mouth=.6}else if(s2<20){p.headRot=-.8;p.headDY=-20;p.headDX=4;p.lean=-.38;p.mouth=.9;p.legs[0]=[1.3,-.5];p.legs[2]=[1.4,-.5];p.auto=false;p.eyes='squint'}else{const k=clamp(1-(s2-20)/22,0,1);p.headRot=-.8*k;p.headDY=-20*k;p.lean=-.38*k;p.mouth=.4*k}return}
@@ -1508,13 +1508,13 @@ const SUBS={
   update(f,o,st){f.vx*=.7;f.vz*=.7;if(st===14){sfx('throw');carrotFire(f,o)}},
   pose(f,p,st){if(st<14){const k=st/14;p.lean=-.35*k;p.headRot=-.6*k;p.headDY=-6*k;p.legs[0]=[.8*k,-.3*k];p.legs[2]=[.9*k,-.3*k];p.auto=false;p.mouth=.3*k}else{const k=clamp(1-(st-14)/16,0,1);p.lean=-.1*k;p.headRot=.5*k;p.headDX=8*k;p.mouth=.6*k;p.eyes='squint'}}},
  roll:{dur:54,start(f,o){face(f,o);f.dx=f.fx;f.dz=f.fz;say(f,'데굴데굴!','#e3e8ee');sfx('roll')},
-  update(f,o,st){if(st<8){f.vx*=.6;f.vz*=.6}else if(st<44){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;f.dx+=(dx/d-f.dx)*.13;f.dz+=(dz/d-f.dz)*.13;const n=Math.hypot(f.dx,f.dz)||1;f.dx/=n;f.dz/=n;f.vx=f.dx*10.5;f.vz=f.dz*10.5;
+  update(f,o,st){if(st<8){f.vx*=.6;f.vz*=.6}else if(st<44){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;const tr=VSM()?.2:.13,rs=VSM()?11.5:10.5;f.dx+=(dx/d-f.dx)*tr;f.dz+=(dz/d-f.dz)*tr;const n=Math.hypot(f.dx,f.dz)||1;f.dx/=n;f.dz/=n;f.vx=f.dx*rs;f.vz=f.dz*rs;
     if(st%3===0){const g=fp(f,-.6,0,(Math.random()-.5)*.6);dust(g.x,g.z)}if(!f.hitDone&&dist2(f,o)<halfW(f)+halfW(o)+44&&Math.abs(o.y-f.y)<70){f.hitDone=true;applyHit(f,o,VSM()?10:9,9,20,{unblockable:true,big:true,kx:f.dx,kz:f.dz,drain:true})}}
    else{f.vx*=.8;f.vz*=.8}},
   pose(f,p,st){if(st>=8&&st<44){p.crouch=f.sp.legLen*.55;p.roll=(st-8)*.5;p.legs=[[1.3,-1.6],[-1.3,1.6],[1.3,-1.6],[-1.3,1.6]];p.auto=false;p.headDY=10;p.headDX=-8;p.headRot=.9;p.eyes='squint';p.mouth=.2}else if(st<8){const k=st/8;p.crouch=6*k;p.headDY=4*k;p.headRot=.3*k}else{const k=1-(st-44)/10;p.crouch=6*k;p.eyes='squint'}}},
  hair:{dur:34,start(f,o){face(f,o);f.pdx=f.fx;f.pdz=f.fz;say(f,'캑! 캑!','#ffd59a')},
   update(f,o,st){f.vx*=.7;f.vz*=.7;if(st===10||st===16||st===22){sfx('spit');const k=st===10?-.18:st===16?0:.18,c=Math.cos(k),sn=Math.sin(k);const dx=f.pdx*c-f.pdz*sn,dz=f.pdx*sn+f.pdz*c;
-    lobs.push({kind:'hair',x:f.x+f.pdx*halfW(f)*.7,z:f.z+f.pdz*halfW(f)*.7,y:-45,vx:dx*9.5,vz:dz*9.5,vy:-2.2,g:.22,owner:f,dmg:4.5-3*clamp((dist2(f,o)-120)/280,0,1),t:0,obj:makeLob('hair'),home:.14})}},
+    lobs.push({kind:'hair',x:f.x+f.pdx*halfW(f)*.7,z:f.z+f.pdz*halfW(f)*.7,y:-45,vx:dx*9.5,vz:dz*9.5,vy:-2.2,g:.22,owner:f,dmg:(VSM()?5:4.5)-3*clamp((dist2(f,o)-120)/280,0,1),t:0,obj:makeLob('hair'),home:.14})}},
   pose(f,p,st){const c=st%6<3;p.crouch=4;p.headDX=c?6:-5;p.headDY=c?2:-3;p.mouth=c?.95:.3;p.lean=.08;p.eyes=c?'squint':'open'}},
  kick:{dur:40,turn:[4,30],start(f,o){face(f,o);f.hitDone=false;say(f,'흥!','#fff1a8')},
   update(f,o,st){f.vx*=.7;f.vz*=.7;if(st===14){sfx('kick');const g=fp(f,.5);for(let i=0;i<6;i++)dust(g.x+(Math.random()-.5)*.6,g.z+(Math.random()-.5)*.6)}
@@ -1528,7 +1528,7 @@ const SUBS={
     if(dist2(f,o)<=230&&o.y>-80&&o.state!=='ko'){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;shockwave(o.x*PX,o.z*PX,'#d8ffc4',1.6);applyHit(f,o,9,8,22,{unblockable:true,launch:4,big:true,kx:dx/d,kz:dz/d,status:{para:120}})}}},   // 사정권 230px 안이면 무조건 명중 + 2초 기절
   pose(f,p,st){if(st<16){const k=st/16;p.lean=-.65*k;p.legs[0]=[1.4*k,-.6*k];p.legs[2]=[1.5*k,-.6*k];p.headDY=-8*k;p.auto=false;p.mouth=.3*k}else if(st<24){p.lean=-.08;p.crouch=9;p.legs[0]=[.15,.1];p.legs[2]=[.15,.1];p.auto=false;p.headDY=6;p.eyes='squint';p.mouth=.5}else{const k=1-(st-24)/20;p.crouch=9*k;p.headDY=6*k;p.mouth=.3*k}}},
  dirt:{dur:40,start(f,o){f.pdx=f.fx;f.pdz=f.fz;say(f,'꿀꿀!','#ffd1a8');sfx('dig')},
-  update(f,o,st){f.vx*=.7;f.vz*=.7;if(st<18&&st%4===0){const g=fp(f,.9,0,(st%8?.3:-.3));dust(g.x,g.z)}if(st===18){sfx('throw');fan(f,5,.26,'dirt',6.5,-6.5,.45,3)}},
+  update(f,o,st){f.vx*=.7;f.vz*=.7;if(st<18&&st%4===0){const g=fp(f,.9,0,(st%8?.3:-.3));dust(g.x,g.z)}if(st===18){sfx('throw');fan(f,5,.26,'dirt',6.5,-6.5,.45,VSM()?2.5:3)}},
   pose(f,p,st){if(st<18){p.headRot=.7;p.headDY=14;p.headDX=2+(st%4<2?3:0);p.crouch=6;p.eyes='squint'}else{const k=clamp(1-(st-18)/16,0,1);p.headRot=-.4*k;p.headDY=-6*k;p.headDX=6*k;p.mouth=.4*k}}},
  kiss:{dur:50,start(f,o){face(f,o);f.pdx=f.fx;f.pdz=f.fz;say(f,'쪽쪽쪽!','#ffd1e6')},   // 푸들: 하트 세 번
   update(f,o,st){f.vx*=.6;f.vz*=.6;if(st===10||st===19||st===28){sfx('spit');kissFire(f,o,(st-10)/9)}},
@@ -1541,7 +1541,7 @@ const SUBS={
   update(f,o,st){f.vx*=.6;f.vz*=.6;
    if(st<12&&st%3===0){const q=fp(f,reachPx(f,.9)*PX,.1,(Math.random()-.5)*.5);spark(q.x,q.y,q.z,'#ffd1dc')}
    if(st===12){sfx('beam');game.shake=Math.max(game.shake,8);const q=fp(f,reachPx(f,.95)*PX,.15);const b=makeBeam(5.6);b.position.set(q.x,q.y,q.z);b.rotation.y=Math.atan2(-f.pdz,f.pdx);beams.push({obj:b,t:0});for(let i=0;i<10;i++)spark(q.x,q.y,q.z,'#fff0f4')}
-   if(st>=12&&st<20&&!f.hitDone){const r=rel(f,o);if(r.along>0&&r.along<340&&r.perp<halfW(o)*.6+40&&Math.abs(o.y-f.y)<75){f.hitDone=true;applyHit(f,o,11,9,22,{unblockable:true,big:true,color:'#ffd1dc',kx:f.pdx,kz:f.pdz})}}},
+   if(st>=12&&st<20&&!f.hitDone){const r=rel(f,o);if(r.along>0&&r.along<340&&r.perp<halfW(o)*.6+40&&Math.abs(o.y-f.y)<75){f.hitDone=true;applyHit(f,o,VSM()?12:11,9,22,{unblockable:true,big:true,color:'#ffd1dc',kx:f.pdx,kz:f.pdz})}}},
   pose(f,p,st){if(st<12){const k=st/12;p.lean=-.28*k;p.headRot=-.45*k;p.headDY=-8*k;p.mouth=.5*k;p.crouch=3*k}else if(st<24){p.lean=-.12+Math.sin(st*1.7)*.04;p.headDX=10;p.headRot=.1;p.mouth=1;p.eyes='squint';p.legs[0]=[.5,-.2];p.legs[2]=[.5,-.2];p.auto=false}else{const k=1-(st-24)/16;p.headDX=10*k;p.mouth=.6*k}}}
 };
 function startSub(f,o){const S=SUBS[f.sp.sub];f.sub=0;setState(f,'sub');f.atkId++;f.vx*=.3;f.vz*=.3;f.stun=0;f.invis=false;S.start(f,o)}
@@ -1555,7 +1555,7 @@ function updateLobs(){for(const pr of lobs){pr.t++;const tg=pr.owner===p1?p2:p1;
   if(pr.lock){const T=pr.lock,k=Math.min(1,pr.t/pr.T),px=-(T.z-pr.sz),pz=T.x-pr.sx,pl=Math.hypot(px,pz)||1,bow=Math.sin(Math.PI*k)*pr.side;
    pr.x=pr.sx+(T.x-pr.sx)*k+px/pl*bow;pr.z=pr.sz+(T.z-pr.sz)*k+pz/pl*bow;pr.y=pr.sy+((T.y-34)-pr.sy)*k-Math.sin(Math.PI*k)*pr.arc;
    if(k>=1&&pr.kind==='bubble'){if(T.state!=='ko'&&!T.invis){pr.carry=T;pr.carryT=0;sfx('splash');const q=fp(T,0,.6*T.sp.scale);waterBurst(q.x,q.y,q.z,8,false);
-     applyHit(pr.owner,T,pr.dmg,0,26,{color:'#9fe8ff',unblockable:true,armorBreak:true,pull:true,status:{silence:120}})}   // 끌려온 상대는 2초간 공격·기술 봉인
+     applyHit(pr.owner,T,pr.dmg,0,VSM()?14:26,{color:'#9fe8ff',unblockable:true,armorBreak:true,pull:true,status:{silence:120}})}   // 끌려온 상대는 2초간 공격·기술 봉인
     else{pr.dead=true;killLob(pr.obj)}continue}
    if(k>=1){pr.dead=true;splat(pr.x*PX,pr.z*PX,pr.kind);sfx('splat');if(pr.kind==='carrot'&&pr.dmg>=4){const q=fp(T,0,.6);popText(q.x,q.y+.5,q.z,'원거리 명중!','#ffcf8a',20)}
     if(T.state!=='ko'&&!T.invis){const m=Math.hypot(T.x-pr.sx,T.z-pr.sz)||1;applyHit(pr.owner,T,pr.dmg,pr.kind==='heart'?1:4,pr.kind==='heart'?8:14,{color:LOB_SPLAT[pr.kind],unblockable:true,armorBreak:true,kx:(T.x-pr.sx)/m,kz:(T.z-pr.sz)/m,status:pr.status});if(pr.kind==='heart'){const q=fp(T,0,.7);popText(q.x,q.y+.3,q.z,'쪽♥','#ff8fc8',22)}}}
