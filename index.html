@@ -259,7 +259,7 @@ const SP={
  deer:{name:'사슴',title:'숲의 왕',bodyW:128,bodyH:52,legLen:72,legW:10,neckDX:46,neckDY:-46,headW:34,headH:28,snoutL:26,snoutH:15,
   col:{base:'#8e5a33',light:'#b77d4b',dark:'#4a2d19',belly:'#dcc3a0',muzzle:'#7a4c2b',chin:'#efe5d5',paw:'#2a1d14',inner:'#c79a76',nose:'#151210'},
   ear:'deer',tail:'short',pattern:'spots',antlers:true,hoof:true,hp:125,speed:3.1,jump:12,scale:1.05,special:'antler',aura:'#9be37c',
-  sub:'stomp',subName:'발굽 찍기',subBtn:'발굽',subDesc:'앞발을 들었다 내리찍어 주변 땅을 흔든다. 반경 안이면 막아도 맞는다.',spName:'왕뿔 돌진',spDesc:'뿔을 낮추고 돌진해 상대를 공중으로 날려버린다. 빗나가면 기력이 돌아와 한 번 더 쓸 수 있다.',
+  sub:'stomp',subName:'발굽 찍기',subBtn:'발굽',subDesc:'앞발을 굴러 땅을 울린다. 사정권 230px 안이면 무조건 맞고, 맞은 상대는 2.5초 동안 공포에 질려 덜덜 떨며 기본 공격을 전혀 못 하고 움직임이 절반으로 느려진다.',spName:'왕뿔 돌진',spDesc:'뿔을 낮추고 힘껏 들이받는다. 돌진하는 동안은 무적이고, 맞은 상대는 2.5초 동안 공격력이 반으로 준다. 한 번 쓰면 기력을 돌려받아 맞았든 빗나갔든 무조건 한 번 더 쓸 수 있다.',
   basicNote:'치받기 6 · 상대를 크게 밀어낸다 · 할퀴기 5',fact:'수사슴의 뿔은 해마다 떨어지고 다시 자란다. 자라는 동안에는 털가죽에 싸여 있다.'},
  boar:{name:'멧돼지',title:'산의 폭군',bodyW:140,bodyH:62,legLen:40,legW:12,neckDX:40,neckDY:-10,headW:46,headH:40,snoutL:30,snoutH:22,
   col:{base:'#5c4b40',light:'#83705f',dark:'#2a211b',belly:'#8a7a6a',muzzle:'#6e5a4d',chin:'#7d6b5e',paw:'#241c17',inner:'#9c7f74',nose:'#2a1d1a'},
@@ -286,7 +286,7 @@ const SHORT={hotteok:['돌진하며 3번 물기, 물리면 1.3초 마비','뒤�
  raccoon:['연막 뒤 순간이동 기습 · 2초간 공격 봉인','멀리 굴러가 들이받기 · 막을 수 없고 상대 보조기 2칸·기력 40을 깎음'],
  cat:['앞으로 사라졌다 상대 코앞에 나타나 냥냥펀치 · 게이지 절반으로 2번, 한 대는 약함 · 유일하게 점프 중 물기·할퀴기 가능','헤어볼 3발 유도 · 가까울수록 셈 · 2번 맞히면'],
  gorani:['소리 광선 · 맞으면 2초간 이동 불가 · 발이 빠름','뒷발 차기 · 넓은 사정권 안이면 무조건 명중, 2초 기절'],
- deer:['뿔로 돌진 · 2.5초간 상대 공격력 반감 · 빗나가면 한 번 더','발굽 찍기 충격파 · 사정권 안이면 무조건 명중, 2초 기절'],
+ deer:['뿔로 돌진 · 돌진 중 무적 · 2.5초간 상대 공격력 반감 · 무조건 한 번 더','발굽 찍기 충격파 · 사정권 안이면 무조건 명중 · 2.5초 공포(기본 공격 불가·이동 절반)'],
  boar:['세 번 연속 돌진 · 쓰는 동안 완전 무적 · 가장 세지만 게이지가 느림 · 흙 맞은 상대를 받으면 들어올리기 추가','흙 5발 뿌리기 · 2번 맞히면 · 맞히면 기력 2.5배, 돌진 들어올리기 조건']};
 for(const k in SHORT){SP[k].spShort=SHORT[k][0];SP[k].subShort=SHORT[k][1]}
 SP.cat.subDesc=SP.cat.subDesc.replace(' 2번 맞히면 쓸 수 있다.','')+' 가까울수록 세고 멀수록 약하다. 2번 맞히면 쓸 수 있다.';
@@ -1274,8 +1274,8 @@ function tuckPose(p,vy){const k=vy<0?1:.55;p.legs[0]=[.9*k,-1.5*k];p.legs[2]=[1*
 
 const ARMOR={rush:1};
 /* 완전 무적 필살기: 수달 워터제트·멧돼지 산돼지 광란 — 쓰는 동안 기본 공격·기술·투사체·상태이상 모두 안 통한다 */
-const INVINCIBLE={waterjet:1,stampede:1};
-const invincible=f=>f.state==='special'&&!!INVINCIBLE[f.sp.special];
+const INVINCIBLE={waterjet:()=>true,stampede:()=>true,antler:f=>f.st>=14&&f.st<46};   // 사슴은 돌진하는 동안만
+const invincible=f=>f.state==='special'&&!!INVINCIBLE[f.sp.special]&&INVINCIBLE[f.sp.special](f);
 const ATK={bite:{s:7,a:5,r:13,reach:1.3,dmg:7,kb:5,stun:17},scratch:{s:4,a:5,r:9,reach:1.1,dmg:5,kb:3,stun:13},shove:{s:6,a:4,r:15,reach:.62,dmg:2,kb:8,stun:14}};
 /* 종별 공격 속도: sp.atkSpd(수달 .75)만큼 준비·판정·후딜 프레임이 짧아진다 */
 const ATK_SC={};
@@ -1291,6 +1291,8 @@ const BITE={
  deer:{dmg:6,kb:12,txt:'치받기',col:'#e8d0a0'},                             // 머리로 치받아 크게 밀어낸다
  boar:{dmg:8.5,kb:8,txt:'엄니',col:'#ffb36b'}};                               // 가장 세지만 준비가 느리다(atkOf)
 const SCR_MUL={poodle:.6,rabbit:.9,boar:.9};
+/* 공포 자세: 몸을 낮추고 덜덜 떨며 머리를 숙인 채 두리번거린다. 꼬리는 말려 들어간다 */
+function fearPose(p,t,walking){const tr=Math.sin(t*1.7)*1.1;p.crouch=(walking?6:10)+tr;p.lean=.1;p.headDY=-5+Math.sin(t*1.7+1)*.8;p.headRot=-.3;p.headYaw=Math.sin(t*.35)*.45;p.headDX=-6;p.eyes='hurt';p.mouth=.55+Math.sin(t*.9)*.15;p.tail=-1.2;p.bank=Math.sin(t*1.7)*.03;if(!walking){p.legs=[[.35,-.15],[-.3,.3],[.35,-.15],[-.3,.3]];p.auto=false}}
 function biteHit(f,o,A){const B=BITE[f.key]||{dmg:A.dmg};let dmg=B.dmg,big=false;
  if(B.crit&&Math.random()<B.crit){dmg*=B.critMul;big=true}
  if(B.dmg2)f.nib=f.st+6;
@@ -1339,8 +1341,8 @@ const VSM=()=>game.mode!=='story';   // 대전 밸런스는 스토리 모드에 
 const reachMul=f=>game.mode==='story'?1:(VS_REACH[f.key]||1);
 const VS_HP={hotteok:100,jjang:105,poodle:110,rabbit:100,raccoon:105,cat:85,otter:62,gorani:105,deer:115,boar:105};
 /* 상태이상: para 마비(이동·공격·막기 불가) silence 공격 봉인 root 속박(이동 불가) weak 공격력 반감 — 프레임 단위 */
-const STATUS_TXT={para:['기절!','#ffe45c'],silence:['공격 봉인!','#c9a2ff'],root:['속박!','#7fe3ff'],weak:['공격력 반감!','#ff9a7a'],slow:['둔화!','#ff8fc8'],freeze:['얼음!','#9fe8ff'],dot:null};
-const STATUS_KEYS=['para','silence','root','weak','slow','freeze','dot'];
+const STATUS_TXT={fear:['공포!','#e6d6ff'],para:['기절!','#ffe45c'],silence:['공격 봉인!','#c9a2ff'],root:['속박!','#7fe3ff'],weak:['공격력 반감!','#ff9a7a'],slow:['둔화!','#ff8fc8'],freeze:['얼음!','#9fe8ff'],dot:null};
+const STATUS_KEYS=['para','silence','root','weak','slow','freeze','dot','fear'];   // fear(사슴 발구르기): 기본 공격 불가 + 이동 절반, 덜덜 떠는 자세
 /* 너구리 굴림에 맞으면 보조기 2칸·기력 40(2칸)이 깎인다 */
 function drainGauge(d){const s0=d.sub||0,m0=d.meter;d.sub=Math.max(0,s0-2);d.meter=Math.max(0,m0-40);const q=fp(d,0,1.35*d.sp.scale);const t=[];if(s0>d.sub)t.push('보조기 -'+(s0-d.sub)+'칸');if(m0>d.meter)t.push('기력 -'+Math.round(m0-d.meter));if(t.length)popText(q.x,q.y+.5,q.z,t.join(' · '),'#c9b8ff',22)}
 function applyStatus(d,st){for(const k in st){const had=(d[k]||0)>0;d[k]=Math.max(d[k]||0,st[k]);if(!STATUS_TXT[k]||had)continue;const q=fp(d,0,1.2*d.sp.scale);popText(q.x,q.y+.3,q.z,STATUS_TXT[k][0],STATUS_TXT[k][1],26)}if(st.freeze)sfx('block')}
@@ -1440,7 +1442,7 @@ const SPECIALS={
   pose(f,p,st){if(st<12){tuckPose(p,-1);p.lean=-.35;return}const s2=st-12,ph=s2%8,which=Math.floor(s2/8)%2,k=ph/8;p.lean=-.3;p.mouth=.7;p.crouch=2;
    if(s2>=48){p.lean=-.3*(1-(s2-48)/8)}else{const sw=[1.7-1.6*k,-.4+.6*k],rest=[.4,.2];p.legs[2]=which?sw:rest;p.legs[0]=which?rest:sw}}},
  antler:{dur:64,start(f){say(f,f.retrying?'한 번 더!':'우오오!','#d8ffc4');f.dx=f.fx;f.dz=f.fz},
-  update(f,o,st){if(st===63&&!f.landed&&!f.retrying){f.meter=Math.max(f.meter,spCost(f));f.freeRetry=true;const q=fp(f,0,1.3*f.sp.scale);popText(q.x,q.y+.4,q.z,'빗나감 · 한 번 더 쓸 수 있다!','#d8ffc4',22);sfx('charge')}   // 실패하면 기력을 돌려줘 한 번 더
+  update(f,o,st){if(st===63&&!f.retrying){f.meter=Math.max(f.meter,spCost(f));f.freeRetry=true;const q=fp(f,0,1.3*f.sp.scale);popText(q.x,q.y+.4,q.z,'한 번 더 쓸 수 있다!','#d8ffc4',22);sfx('charge')}   // 맞았든 빗나갔든 기력을 돌려줘 무조건 한 번 더
    if(st<20){f.vx*=.6;f.vz*=.6;if(st%5===0){const g=fp(f,.5);dust(g.x,g.z)}}
    else if(st<44){f.vx=f.dx*12.5;f.vz=f.dz*12.5;if(st%3===0){const g=fp(f,-.7);dust(g.x,g.z)}if(st%2){const w=fp(f,-1.6,(Math.random()-.5)*1.4);speedLine(w.x,w.y,w.z,f.fx,f.fz,'#c9ffb0')}if(!f.hitDone&&inReach(f,o,.9)){f.hitDone=true;applyHit(f,o,VSM()?18:21,13,30,{launch:9,big:true,status:{weak:150}})}}
    else{f.vx*=.85;f.vz*=.85}},
@@ -1554,7 +1556,7 @@ const SUBS={
   pose(f,p,st){const k=clamp(st/12,0,1),e=clamp((st-26)/12,0,1),kk=st>=14&&st<22?1:0;p.lean=.3*k*(1-e)+.15*kk;p.headDY=8*k*(1-e);p.headDX=-4*k;p.legs[1]=[-1.3*k*(1-e)-.8*kk,.3];p.legs[3]=[-1.3*k*(1-e)-.8*kk,.3];p.legs[0]=[.3*k,.3*k];p.legs[2]=[.3*k,.3*k];p.auto=false;p.mouth=.4*k;p.eyes=kk?'squint':'open'}},
  stomp:{dur:44,start(f,o){say(f,'쿵!','#d8ffc4')},
   update(f,o,st){f.vx*=.6;f.vz*=.6;if(st===18){sfx('stomp');const gx=f.x*PX,gz=f.z*PX;shockwave(gx,gz,'#d8ffc4',5);game.shake=Math.max(game.shake,14);for(let i=0;i<16;i++)dust(gx+(Math.random()-.5)*2.6,gz+(Math.random()-.5)*2.6,true);
-    if(dist2(f,o)<=230&&o.y>-80&&o.state!=='ko'){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;shockwave(o.x*PX,o.z*PX,'#d8ffc4',1.6);applyHit(f,o,9,8,22,{unblockable:true,launch:4,big:true,kx:dx/d,kz:dz/d,status:{para:120}})}}},   // 사정권 230px 안이면 무조건 명중 + 2초 기절
+    if(dist2(f,o)<=230&&o.y>-80&&o.state!=='ko'){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;shockwave(o.x*PX,o.z*PX,'#d8ffc4',1.6);applyHit(f,o,9,8,22,{unblockable:true,launch:4,big:true,kx:dx/d,kz:dz/d,status:{fear:150}})}}},   // 사정권 230px 안이면 무조건 명중 + 2.5초 공포(기본 공격 불가·이동 절반)
   pose(f,p,st){if(st<16){const k=st/16;p.lean=-.65*k;p.legs[0]=[1.4*k,-.6*k];p.legs[2]=[1.5*k,-.6*k];p.headDY=-8*k;p.auto=false;p.mouth=.3*k}else if(st<24){p.lean=-.08;p.crouch=9;p.legs[0]=[.15,.1];p.legs[2]=[.15,.1];p.auto=false;p.headDY=6;p.eyes='squint';p.mouth=.5}else{const k=1-(st-24)/20;p.crouch=9*k;p.headDY=6*k;p.mouth=.3*k}}},
  dirt:{dur:40,start(f,o){f.pdx=f.fx;f.pdz=f.fz;say(f,'꿀꿀!','#ffd1a8');sfx('dig')},
   update(f,o,st){f.vx*=.7;f.vz*=.7;if(st<18&&st%4===0){const g=fp(f,.9,0,(st%8?.3:-.3));dust(g.x,g.z)}if(st===18){sfx('throw');fan(f,5,.26,'dirt',6.5,-6.5,.45,VSM()?2.5:3)}},
@@ -1636,6 +1638,7 @@ function updateF(f,o,inp){
  if(stopped||f.root>0)inp=Object.assign({},inp,{mx:0,mz:0,jump:false,run:false,dash:false});
  if(stopped||f.silence>0)inp=Object.assign({},inp,{bite:false,scratch:false,shove:false,special:false,sub:false});
  if(f.slow>0)inp=Object.assign({},inp,{mx:(inp.mx||0)*.42,mz:(inp.mz||0)*.42,run:false,dash:false});   // 둔화: 이동 42%
+ if(f.fear>0)inp=Object.assign({},inp,{bite:false,scratch:false,shove:false,mx:(inp.mx||0)*.5,mz:(inp.mz||0)*.5,run:false,dash:false});   // 공포: 기본 공격 불가 + 이동 50%
  if(f.freeze>0){f.vx*=.6;f.vz*=.6}
  if(stopped&&f.state==='walk')setState(f,'idle');
  if(f.animT%10===0&&false){const on=null;if(on){const q=fp(f,0,1.05*f.sp.scale,(Math.random()-.5)*.5);spark(q.x,q.y,q.z,STATUS_TXT[on][1]);if(on==='para'&&f.animT%30===0)star(q.x,q.y,q.z,.5)}}
@@ -1800,8 +1803,8 @@ function getPose(f){
  const p=basePose(),t=f.animT,st=f.st,sp=f.sp,air=f.y<-1;
  p.tail=Math.sin(t*(sp.key==='hotteok'||sp.key==='jjang'?.22:.1))*.3;
  switch(f.state){
-  case 'idle':if(f.guarding){p.crouch=10;p.headDX=-8;p.headDY=6;p.headRot=.18;p.eyes='squint';p.lean=.05;break}p.bob=Math.sin(t*.09)*1.4;p.crouch=3;p.headDY=2;if(game.screen==='title'||game.screen==='select'){p.tail=Math.sin(t*.3)*.5;p.mouth=.25+Math.sin(t*.09)*.08;p.tongue=true;p.headYaw=Math.sin(t*.02)*.35}break;
-  case 'walk':if(f.guarding){walkPose(p,f.walkPh,.3);p.crouch=10;p.headDX=-8;p.headDY=6;p.headRot=.18;p.eyes='squint';break}if(f.running)gallopPose(p,f.walkPh*1.05,.9);else walkPose(p,f.walkPh,.55);break;
+  case 'idle':if(f.fear>0){fearPose(p,f.animT);break}if(f.guarding){p.crouch=10;p.headDX=-8;p.headDY=6;p.headRot=.18;p.eyes='squint';p.lean=.05;break}p.bob=Math.sin(t*.09)*1.4;p.crouch=3;p.headDY=2;if(game.screen==='title'||game.screen==='select'){p.tail=Math.sin(t*.3)*.5;p.mouth=.25+Math.sin(t*.09)*.08;p.tongue=true;p.headYaw=Math.sin(t*.02)*.35}break;
+  case 'walk':if(f.fear>0){walkPose(p,f.walkPh,.35);fearPose(p,f.animT,true);break}if(f.guarding){walkPose(p,f.walkPh,.3);p.crouch=10;p.headDX=-8;p.headDY=6;p.headRot=.18;p.eyes='squint';break}if(f.running)gallopPose(p,f.walkPh*1.05,.9);else walkPose(p,f.walkPh,.55);break;
   case 'jump':tuckPose(p,f.vy);break;
   case 'bite':{if(f.atkMove&&!air)walkPose(p,f.walkPh,.5);const A=atkOf(f,'bite');if(st<A.s){p.headDX=-7*st/A.s;p.mouth=st/A.s;p.crouch=4}else if(st<A.s+A.a){p.headDX=22;p.mouth=.12;p.lean=.06}else{const k=1-(st-A.s-A.a)/A.r;p.headDX=22*k;p.mouth=.1*k}if(air)tuckPose(p,f.vy);break}
   case 'scratch':{if(f.atkMove&&!air){walkPose(p,f.walkPh,.5);p.auto=true}const A=atkOf(f,'scratch');let k;if(st<A.s){k=st/A.s;p.lean=-.28*k;p.legs[2]=[1.7*k,-.5*k]}else if(st<A.s+A.a){k=(st-A.s)/A.a;p.lean=-.28;p.legs[2]=[1.7-1.4*k,-.5+.7*k];p.mouth=.6}else{k=1-(st-A.s-A.a)/A.r;p.lean=-.28*k;p.legs[2]=[.3*k,.2*k];p.mouth=.3*k}
@@ -1832,6 +1835,7 @@ function iconTex(k){if(ICON_TX[k])return ICON_TX[k];return ICON_TX[k]=tex(128,12
  if(k==='weak'){g.fillStyle='#ff4d3d';g.strokeStyle='#5a0d06';g.lineWidth=8;g.beginPath();g.moveTo(40,14);g.lineTo(88,14);g.lineTo(88,62);g.lineTo(112,62);g.lineTo(64,118);g.lineTo(16,62);g.lineTo(40,62);g.closePath();g.stroke();g.fill()}
  else if(k==='silence'){g.strokeStyle='#3a1460';g.lineWidth=30;g.beginPath();g.moveTo(26,26);g.lineTo(102,102);g.moveTo(102,26);g.lineTo(26,102);g.stroke();g.strokeStyle='#c9a2ff';g.lineWidth=18;g.stroke()}
  else if(k==='heart'){g.fillStyle='#ff6fae';g.strokeStyle='#7a0f3e';g.lineWidth=6;g.beginPath();g.moveTo(64,112);g.bezierCurveTo(8,70,14,18,64,40);g.bezierCurveTo(114,18,120,70,64,112);g.closePath();g.stroke();g.fill()}
+ else if(k==='fear'){g.fillStyle='#f0e6ff';g.strokeStyle='#4a2a7a';g.lineWidth=8;g.beginPath();g.moveTo(50,12);g.lineTo(78,12);g.lineTo(70,80);g.lineTo(58,80);g.closePath();g.fill();g.stroke();g.beginPath();g.arc(64,104,12,0,TAU);g.fill();g.stroke()}
  else if(k==='snail'){g.fillStyle='#ffd1e6';g.strokeStyle='#6a2a48';g.lineWidth=6;g.beginPath();g.arc(70,62,36,0,TAU);g.fill();g.stroke();g.beginPath();g.arc(70,62,20,0,5);g.stroke();g.beginPath();g.ellipse(58,104,48,12,0,0,TAU);g.fill();g.stroke()}})}
 function statusFX(f){const r=f.rig;let s=f.sx;
  if(!s){s=f.sx={stars:[],icon:null,iconK:'',ring:null,ice:null};}
@@ -1842,7 +1846,7 @@ function statusFX(f){const r=f.rig;let s=f.sx;
  if(!st&&s.stars.length){for(const sp of s.stars)beach.remove(sp);s.stars=[]}
  for(let i=0;i<s.stars.length;i++){const a=tick*.15+i*TAU/3;s.stars[i].position.set(head.x+Math.cos(a)*.42,head.y-.25+Math.sin(tick*.3+i)*.05,head.z+Math.sin(a)*.42);s.stars[i].material.rotation=tick*.1}
  // 머리 위 아이콘: 공격력 반감(빨간 화살표) > 공격 봉인(보라 X) > 둔화(하트 달팽이)
- const ik=!show?'':f.weak>0?'weak':f.silence>0?'silence':f.slow>0?'snail':'';
+ const ik=!show?'':f.weak>0?'weak':f.silence>0?'silence':f.fear>0?'fear':f.slow>0?'snail':'';
  if(ik!==s.iconK){if(s.icon){beach.remove(s.icon);s.icon=null}s.iconK=ik;if(ik){s.icon=mkSprite(iconTex(ik),undefined,false);s.icon.scale.set(.55,.55,1);beach.add(s.icon)}}
  if(s.icon){const b=Math.sin(tick*.2)*.06;s.icon.position.set(head.x,head.y+.1+(ik==='weak'?-Math.abs(b)*2:b),head.z);const k=.5+Math.sin(tick*.25)*.06;s.icon.scale.set(k,k,1)}
  // 속박: 발밑에 빛나는 고리 / 둔화: 분홍 고리
@@ -1850,6 +1854,8 @@ function statusFX(f){const r=f.rig;let s=f.sx;
  if(rk&&!s.ring){s.ring=new THREE.Mesh(new THREE.TorusGeometry(1,.06,8,40),new THREE.MeshBasicMaterial({color:C(rk),transparent:true,opacity:.8,depthWrite:false,blending:THREE.AdditiveBlending}));s.ring.rotation.x=Math.PI/2;beach.add(s.ring)}
  if(!rk&&s.ring){beach.remove(s.ring);s.ring=null}
  if(s.ring){s.ring.material.color.copy(C(rk));const k=r.bw*.75*(1+Math.sin(tick*.3)*.08);s.ring.scale.set(k,k,k);s.ring.position.set(feet.x,.06,feet.z);if(f.root>0&&tick%6===0)spark(feet.x+(Math.random()-.5)*r.bw,.2,feet.z+(Math.random()-.5)*r.bw*.6,'#bff3ff')}
+ // 공포: 식은땀이 뚝뚝
+ if(show&&f.fear>0&&tick%7===0){const q=fp(f,.1,1.05*f.sp.scale,(Math.random()<.5?-1:1)*.45);const d=mkSprite(TX.disc,C('#bfe6ff'),false);d.position.set(q.x,q.y,q.z);addPart({obj:d,vy:-.03,vx:(Math.random()-.5)*.01,g:-.003,life:22,s0:.13,s1:.08,fade:true,op:.95})}
  // 둔화: 하트가 몽글몽글 / 지속 피해 중 분홍 김
  if(show&&f.slow>0&&tick%9===0){const q=fp(f,0,.6*f.sp.scale,(Math.random()-.5)*.6);const h=mkSprite(iconTex('heart'),undefined,false);h.position.set(q.x,q.y,q.z);addPart({obj:h,vy:.018,vx:(Math.random()-.5)*.01,life:40,s0:.22,s1:.34,fade:true,op:.95})}
  // 얼음: 반투명 얼음 덩어리가 감싼다
@@ -1860,7 +1866,7 @@ function statusFX(f){const r=f.rig;let s=f.sx;
 function clearStatusFX(f){const s=f&&f.sx;if(!s)return;for(const sp of s.stars)beach.remove(sp);if(s.icon)beach.remove(s.icon);if(s.ring)beach.remove(s.ring);if(s.ice)beach.remove(s.ice);f.sx=null}
 /* 몸 색: 얼음 하늘색 · 둔화 분홍 · 공격력 반감 붉은 맥동 · 기절 노란 맥동 · 속박 청록 */
 function statusTint(f){const r=f.rig,p=.5+.5*Math.sin(tick*.25);
- const t=f.freeze>0?['#7fd6ff',.55]:f.weak>0?['#ff3b2a',.08+.14*p]:f.slow>0?['#ff6fb0',.12+.1*p]:f.para>0?['#ffe45c',.15+.2*p]:f.root>0?['#4fd8ff',.15+.1*p]:f.silence>0?['#9a5cff',.15+.1*p]:null;
+ const t=f.freeze>0?['#7fd6ff',.55]:f.weak>0?['#ff3b2a',.08+.14*p]:f.slow>0?['#ff6fb0',.12+.1*p]:f.para>0?['#ffe45c',.15+.2*p]:f.root>0?['#4fd8ff',.15+.1*p]:f.silence>0?['#9a5cff',.15+.1*p]:f.fear>0?['#c8b0ff',.1+.12*p]:null;
  if(!t){if(r.tinted){for(const m of r.mats){m.emissive.setHex(0);m.emissiveIntensity=0}r.tinted=false}return}
  const c=C(t[0]);for(const m of r.mats){m.emissive.copy(c);m.emissiveIntensity=t[1]}r.tinted=true;r.flashOn=false}
 /* ---------- HUD ---------- */
