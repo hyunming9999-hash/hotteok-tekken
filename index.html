@@ -1542,7 +1542,7 @@ const SUBS={
    if(st<12&&st%3===0){const q=fp(f,reachPx(f,.9)*PX,.1,(Math.random()-.5)*.5);spark(q.x,q.y,q.z,'#ffd1dc')}
    if(st===12){if(o.state!=='ko'&&!o.invis){face(f,o);f.pdx=f.fx;f.pdz=f.fz}sfx('beam');game.shake=Math.max(game.shake,8);const q=fp(f,reachPx(f,.95)*PX,.15);const b=makeBeam(5.6);   // 쏘는 순간 상대를 겨눈다
 b.position.set(q.x,q.y,q.z);b.rotation.y=Math.atan2(-f.pdz,f.pdx);beams.push({obj:b,t:0});for(let i=0;i<10;i++)spark(q.x,q.y,q.z,'#fff0f4')}
-   if(st>=12&&st<20&&!f.hitDone){if(dist2(f,o)<=340&&Math.abs(o.y-f.y)<75&&o.state!=='ko'&&!o.invis){f.hitDone=true;applyHit(f,o,VSM()?12:11,9,22,{unblockable:true,big:true,color:'#ffd1dc',kx:f.pdx,kz:f.pdz})}}},   // 사정권(340px) 안이면 점프 중이 아닌 한 맞는다
+   if(st>=12&&st<20&&!f.hitDone){if(dist2(f,o)<=340&&Math.abs(o.y-f.y)<75&&o.state!=='ko'&&!o.invis){f.hitDone=true;applyHit(f,o,7,9,22,{unblockable:true,big:true,color:'#ffd1dc',kx:f.pdx,kz:f.pdz})}}},   // 사정권(340px) 안이면 점프 중이 아닌 한 맞는다. 거의 다 맞는 대신 피해 7
   pose(f,p,st){if(st<12){const k=st/12;p.lean=-.28*k;p.headRot=-.45*k;p.headDY=-8*k;p.mouth=.5*k;p.crouch=3*k}else if(st<24){p.lean=-.12+Math.sin(st*1.7)*.04;p.headDX=10;p.headRot=.1;p.mouth=1;p.eyes='squint';p.legs[0]=[.5,-.2];p.legs[2]=[.5,-.2];p.auto=false}else{const k=1-(st-24)/16;p.headDX=10*k;p.mouth=.6*k}}}
 };
 function startSub(f,o){const S=SUBS[f.sp.sub];f.sub=0;setState(f,'sub');f.atkId++;f.vx*=.3;f.vz*=.3;f.stun=0;f.invis=false;S.start(f,o)}
