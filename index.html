@@ -24,9 +24,10 @@ body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(
 /* ---- 터치 패드 (화면 위에 떠 있음) ---- */
 #pad{display:none;position:fixed;left:0;right:0;bottom:0;padding:0 var(--sr) calc(12px + var(--sb)) var(--sl);justify-content:space-between;align-items:flex-end;gap:10px;pointer-events:none;touch-action:none;user-select:none;-webkit-user-select:none}
 body.touch #pad{display:flex}
-.cluster{display:grid;grid-template-columns:repeat(3,auto);gap:10px;align-items:center;justify-items:center;pointer-events:auto}
+.cluster{display:grid;grid-template-columns:repeat(4,auto);gap:10px;align-items:center;justify-items:center;pointer-events:auto}
 .act.poo{background:rgba(92,62,32,.75);border-color:#b58a5a;color:#ffe9c8}
 .act.poo.ready{background:#8a5a2b;border-color:#ffd9a8;color:#fff;animation:pulse 1s ease-in-out infinite}
+.act.grd{background:rgba(40,70,100,.75);border-color:#8fd3ff}
 .act.psh{background:rgba(96,74,40,.75);border-color:#d1a86a}
 .pbtn{width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(10,14,24,.45);color:#fff;
   font:22px var(--ui);touch-action:none;-webkit-tap-highlight-color:transparent;padding:0;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -205,6 +206,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
     <button class="pbtn act psh" data-k="shove">밀치기</button>
     <button class="pbtn act poo" data-k="sub" id="subBtn">똥!</button>
     <button class="pbtn act sp" data-k="special" id="spBtn">필살기</button>
+    <button class="pbtn act grd" data-k="guard">막기</button>
   </div>
 </div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -303,10 +305,11 @@ SP.poodle={name:'누리',title:'우비 입은 하얀 푸들',bodyW:84,bodyH:44,l
 /* 수달: 고양이만큼 빠르고 공격이 빠른 대신 한 대가 약하다(atkSpd 공격 동작 시간 배율 · dmgMul 기본 공격 피해 배율) */
 SP.otter={name:'수달',title:'계곡의 장난꾸러기',bodyW:104,bodyH:36,legLen:16,legW:10,neckDX:30,neckDY:-12,headW:32,headH:26,snoutL:11,snoutH:12,eyeR:4.4,noseR:4.2,
  col:{base:'#4f3b2a',light:'#6e5843',dark:'#241b13',belly:'#a89a80',muzzle:'#968468',chin:'#d6c9b3',paw:'#33271e',inner:'#8c6e60',nose:'#17110f'},
- ear:'tiny',tail:'otter',pattern:'sleek',whiskers:true,webbed:true,hp:95,speed:4,jump:13,scale:.95,special:'waterjet',aura:'#7fd8ff',atkSpd:.75,dmgMul:.75,dmgMulVS:.66,
+ ear:'tiny',tail:'otter',pattern:'sleek',whiskers:true,webbed:true,hp:85,speed:4.4,jump:13,scale:.95,special:'waterjet',aura:'#7fd8ff',atkSpd:.75,dmgMul:.5,dmgMulVS:.5,ranged:true,
  spName:'워터제트',spDesc:'꼬리로 서서 팽이처럼 돌며 3초 동안 사방에 물을 뿌린다. 도는 동안 방향키로 팽이를 몰 수 있고, 물줄기에 닿은 상대는 막아도 맞고 밀려난다. 한 번은 약하지만 쫓아가며 여러 번 맞힌다. 쓰는 동안은 완전 무적이라 어떤 공격도 기술도 통하지 않는다.',
  sub:'bubble',subName:'물방울 올가미',subBtn:'물방울',subDesc:'물방울을 날려 상대를 감싼 뒤 코앞까지 끌어당기고 터뜨린다. 중거리(330px) 안이면 무조건 명중. 피해는 약하지만 끌려온 상대는 2초 동안 공격도 기술도 못 쓴다.',
  spShort:'팽이처럼 돌며 3초간 물 뿌리기 · 방향키로 조종 · 쓰는 동안 완전 무적 · 닿으면 밀려남, 막기 불가',subShort:'물방울로 감싸 끌어당긴 뒤 터뜨림 · 330px 안 무조건 명중 · 끌려오면 2초간 공격 봉인',
+ basicNote:'기본 공격: 멀리 있으면 작은 물방울을 쏜다(320px · 물기 1.5 / 할퀴기 1) · 가까우면 물기 3.5 / 할퀴기 2.5 · 가장 빠르지만 체력이 약하다',
  fact:'수달은 물갈퀴 발과 두꺼운 꼬리로 헤엄치고 매끈한 털이 물을 튕겨 낸다. 천연기념물이자 멸종위기 야생생물 1급이다.'};
 for(const k in SP)SP[k].key=k;
 const LADDER=['rabbit','raccoon','cat','gorani','deer','otter','boar'];
@@ -1313,10 +1316,10 @@ const spCost=f=>f.sp.spCost||100;                                           // �
 const STORY_HP=[85,100,115,130,150,160,175];
 const storyBossHp=()=>Math.round(STORY_HP[game.stage]*({low:.9,mid:1,high:1.15}[game.storyLvl]||1));
 /* 대전 전용 기본 공격 사거리 보정: 몸집 큰 동물이 사거리로 압도하지 않게 작은 동물은 늘리고 큰 동물은 줄인다 */
-const VS_REACH={rabbit:1.53,poodle:1.39,cat:1.4,otter:1.18,raccoon:1.21,gorani:1.06,hotteok:.97,jjang:.97,deer:.86,boar:.81};   // '내 사거리 − 상대 몸 반폭×0.6'이 모두 같아지게(몸집 큰 쪽은 맞히기도 쉬우니 그만큼 덜 늘림)
+const VS_REACH={rabbit:1.53,poodle:1.39,cat:1.4,otter:1.02,raccoon:1.21,gorani:1.06,hotteok:.97,jjang:.97,deer:.86,boar:.81};   // '내 사거리 − 상대 몸 반폭×0.6'이 모두 같아지게(몸집 큰 쪽은 맞히기도 쉬우니 그만큼 덜 늘림)
 const VSM=()=>game.mode!=='story';   // 대전 밸런스는 스토리 모드에 적용하지 않는다
 const reachMul=f=>game.mode==='story'?1:(VS_REACH[f.key]||1);
-const VS_HP={hotteok:100,jjang:100,poodle:100,rabbit:100,raccoon:110,cat:90,otter:90,gorani:105,deer:110,boar:105};
+const VS_HP={hotteok:100,jjang:100,poodle:100,rabbit:100,raccoon:110,cat:90,otter:80,gorani:105,deer:110,boar:105};
 /* 상태이상: para 마비(이동·공격·막기 불가) silence 공격 봉인 root 속박(이동 불가) weak 공격력 반감 — 프레임 단위 */
 const STATUS_TXT={para:['기절!','#ffe45c'],silence:['공격 봉인!','#c9a2ff'],root:['속박!','#7fe3ff'],weak:['공격력 반감!','#ff9a7a'],slow:['둔화!','#ff8fc8'],freeze:['얼음!','#9fe8ff'],dot:null};
 const STATUS_KEYS=['para','silence','root','weak','slow','freeze','dot'];
@@ -1339,15 +1342,18 @@ function applyHit(a,d,dmg,kb,stun,o){
  // 끌어당김(수달 물방울): 넉백이 공격자 쪽을 향하고, 세기는 코앞까지 끌려올 만큼(맞은 뒤 마찰 .82 → 총 이동 ≈ kb×5.5)
  if(o.pull&&!o.fromNet){const dx=a.x-d.x,dz=a.z-d.z,dd=Math.hypot(dx,dz)||1,travel=Math.max(0,dd-(halfW(a)+halfW(d)+4));kx=dx/dd;kz=dz/dd;kb=grounded?travel*.22:travel/Math.max(10,stun)}
  if(a.ctrl==='ai')dmg*=1.0+aiBuff()*.06;
- if(a.sp.dmgMul&&BASIC[a.state]&&!o.fromNet)dmg*=(VSM()&&a.sp.dmgMulVS)||a.sp.dmgMul;   // 수달: 기본 공격이 빠른 대신 약하다(대전에서는 더 약하게)
+ if(a.sp.dmgMul&&BASIC[a.state]&&!o.fromNet&&!o.pre)dmg*=(VSM()&&a.sp.dmgMulVS)||a.sp.dmgMul;   // 수달: 기본 공격이 빠른 대신 약하다(대전에서는 더 약하게)
  if(a.weak>0&&!o.fromNet)dmg*=.5;   // 사슴 들이받기에 맞은 쪽은 공격력 반감
  // 온라인: 상대 캐릭터의 피해 판정은 그쪽 기기가 한다 → 여기선 효과만 보여 주고 기록을 보낸다
- if(isRemote(d)&&!o.fromNet){ring(h.x,h.y,h.z,o.color||a.sp.aura,.9);NET.sendHit({dmg,kb,stun,kx,kz,o});chargeSub(a);a.landed=true;return true}
+ if(isRemote(d)&&!o.fromNet){ring(h.x,h.y,h.z,o.color||a.sp.aura,.9);NET.sendHit({dmg,kb,stun,kx,kz,o});chargeSub(a,o);a.landed=true;return true}
  // 슈퍼아머: 돌진 계열 필살기·보조기 중에는 맞아도 끊기지 않는다 (피해는 60%)
- if(((d.state==='special'&&ARMOR[d.sp.special])||d.state==='sub')&&!o.armorBreak){dmg*=.6;d.hp-=dmg;chargeSub(a);a.landed=true;if(o.drain)drainGauge(d);d.flash=4;gainM(a,dmg*1.2*(o.meterMul||1));if(o.mark==='dirt')d.dirtMark=300;
+ if(((d.state==='special'&&ARMOR[d.sp.special])||d.state==='sub')&&!o.armorBreak){dmg*=.6;d.hp-=dmg;chargeSub(a,o);a.landed=true;if(o.drain)drainGauge(d);d.flash=4;gainM(a,dmg*1.2*(o.meterMul||1));if(o.mark==='dirt')d.dirtMark=300;
   ring(h.x,h.y,h.z,'#ffffff',.9);for(let i=0;i<4;i++)spark(h.x,h.y,h.z,'#ffe6c0');popText(h.x,h.y+.8,h.z,'-'+Math.round(dmg),'#d8d8d8',20);sfx('hit');
   if(d.hp<=0)koNow(a,d,kx,kz);return true}
- const blocking=!o.unblockable&&grounded&&(d.state==='idle'||d.state==='walk'||d.state==='block')&&(d.ctrl!=='ai'?d.holdBack:d.ai.blockT>0);
+ // 막기: 기본 공격만, 앞에서 온 것만. 사람은 막기 버튼을 누른 직후 0.67초 동안만 유효(계속 누르고 있어도 풀림), 2초 안에 3번 막으면 가드가 깨진다
+ const front=(((a.x-d.x)*d.fx+(a.z-d.z)*d.fz)/(Math.hypot(a.x-d.x,a.z-d.z)||1))>.3;
+ let blocking=!!o.basic&&!o.unblockable&&grounded&&front&&(d.state==='idle'||d.state==='walk'||d.state==='block')&&(d.ctrl!=='ai'?!!d.guarding:d.ai.blockT>0);
+ if(blocking&&d.ctrl!=='ai'){d.guardHits=(d.guardHits||0)+1;d.guardHitT=120;if(d.guardHits>=3){blocking=false;d.guarding=false;d.guardCD=70;d.guardHits=0;stun+=26;const q=fp(d,0,1.1*d.sp.scale);popText(q.x,q.y+.5,q.z,'가드 깨짐!','#ff9f9f',26);ring(q.x,q.y,q.z,'#ff9f9f',1.6);sfx('bighit')}}
  if(blocking&&o.push){setState(d,'block');d.stun=16;d.vx=kx*kb;d.vz=kz*kb;d.hp=Math.max(1,d.hp-dmg);popText(h.x,h.y+1.1,h.z,'-'+Math.round(dmg),'#ffe08a',20);const g=fp(d,0,-fCY(d)+.1);for(let i=0;i<8;i++)dust(g.x+(Math.random()-.5)*.8,g.z+(Math.random()-.5)*.8);ring(h.x,h.y,h.z,'#ffffff',1.6);popText(h.x,h.y+.7,h.z,'밀어냄','#fff2c8',22);sfx('push');game.hitstop=4;game.shake=Math.max(game.shake,5);return true}
  if(blocking){setState(d,'block');d.stun=12;d.vx=kx*kb*.8;d.vz=kz*kb*.8;d.hp=Math.max(1,d.hp-dmg*.15);
   ring(h.x,h.y,h.z,'#8fd3ff',1.2);for(let i=0;i<6;i++)spark(h.x,h.y,h.z,'#bfe6ff');popText(h.x,h.y+.7,h.z,'막기','#bfe6ff',22);
@@ -1358,7 +1364,7 @@ function applyHit(a,d,dmg,kb,stun,o){
  if(BASIC[a.state]){a.chain=(a.chainT>0?(a.chain||0):0)+1;a.chainT=50}   // 최근 0.8초 안에 맞힌 기본 공격 수
  const ch=a.chain||0;if(ch>1)stun=Math.round(stun*Math.max(.45,1-.18*(ch-1)));
  let breaker=false;if(BASIC[a.state]&&ch>=4){breaker=true;kb*=2.4;o=Object.assign({},o,{launch:Math.max(o.launch||0,7)});a.chain=0;a.chainT=0}
- d.hp-=dmg;d.flash=7;setState(d,'hit');chargeSub(a);a.landed=true;d.stun=stun;d.vx=kx*kb;d.vz=kz*kb;
+ d.hp-=dmg;d.flash=7;setState(d,'hit');chargeSub(a,o);a.landed=true;d.stun=stun;d.vx=kx*kb;d.vz=kz*kb;
  if(breaker){d.breaker=30;const q=fp(d,0,1.1*d.sp.scale);popText(q.x,q.y+.4,q.z,'떨쳐냄!','#ffffff',24);shockwave(d.x*PX,d.z*PX,'#ffffff',2.2)}
  if(o.pull){const q=fp(d,0,1.0*d.sp.scale);popText(q.x,q.y+.3,q.z,'끌려옴!','#bfefff',22)}
  if(o.launch||!grounded){d.vy=-(o.launch||5);if(d.y>=0)d.y=-1}
@@ -1463,7 +1469,7 @@ const SPECIALS={
 function startAtk(f,k,o){if(o)face(f,o);setState(f,k);f.charge=0;f.atkId++;sfx(k);
  if(f.y<0&&o&&f.sp.airAttack){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;f.vx=dx/d*f.spd*1.4;f.vz=dz/d*f.spd*1.4;if(f.vy<3)f.vy=3;const q=fp(f,0,.4);for(let i=0;i<5;i++)spark(q.x,q.y,q.z,'#ffd59a');popText(q.x,q.y+.9,q.z,'공중 공격!','#ffd59a',20)}}   // 고양이만: 점프 중 공격하면 상대 쪽으로 덮친다
 const BASIC={bite:1,scratch:1,shove:1};
-function chargeSub(a){if(BASIC[a.state])a.sub=Math.min(subNeed(a),(a.sub||0)+1)}   // 기본 공격(물기·할퀴기·밀치기)으로 피해를 줘야 보조기가 1칸 찬다
+function chargeSub(a,o){if(o&&o.noSub)return;if(BASIC[a.state]||(o&&o.basic))a.sub=Math.min(subNeed(a),(a.sub||0)+1)}   // 기본 공격(물기·할퀴기·밀치기)으로 피해를 줘야 보조기가 1칸 찬다
 function startSpecial(f,o){if(o)face(f,o);f.meter=Math.max(0,f.meter-spCost(f));setState(f,'special');f.atkId++;f.invis=false;game.cutin={f,t:0};f.landed=false;f.retrying=!!f.freeRetry;f.freeRetry=false;
  const cu=document.getElementById('cutin');cu.className=f===p1?'p1':'p2';cu.style.setProperty('--mc',f.sp.aura);document.getElementById('cwho').textContent=f.sp.name+'의 필살기';document.getElementById('cmv').textContent=f.sp.spName;cu.hidden=false;
  SPECIALS[f.sp.special].start(f);sfx('special');MUSIC.duck(.3,1.2)}
@@ -1494,7 +1500,10 @@ function kissFire(f,o,i){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=d
  else{L.vx=ux*7;L.vz=uz*7;L.vy=-2;L.g=.2;L.miss=true}
  lobs.push(L)}
 /* 물방울 올가미(수달): 사거리(BUBBLE_RANGE) 안이면 물방울이 상대를 따라가 감싼 뒤 코앞까지 끌어당기고 터진다. 피해는 약하다 */
-const BUBBLE_RANGE=330;
+const BUBBLE_RANGE=330,DROP_RANGE=320;
+/* 수달 기본 공격(원거리): 상대를 겨눠 작은 물방울을 곧게 쏜다. 피해는 기본 공격과 같고(0.5배), 앞에서 막을 수 있다 */
+function fireDrop(f,o,A){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d,k=halfW(f)*.8;const g=makeLob('bubble');g.scale.setScalar(.42);
+ projectiles.push({kind:'drop',x:f.x+ux*k,z:f.z+uz*k,y:-40,vx:ux*11,vz:uz*11,owner:f,dmg:f.state==='bite'?1.5:1,kb:1,stun:3,status:null,life:Math.ceil(DROP_RANGE/11)+4,t:0,obj:g,color:'#9fe8ff',basic:true});sfx('bubble')}
 function bubbleFire(f,o){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d;f.pdx=ux;f.pdz=uz;const r0=halfW(f)*.7;
  const L={kind:'bubble',x:f.x+ux*r0,z:f.z+uz*r0,y:-46,owner:f,dmg:VSM()?4:6.5,t:0,obj:makeLob('bubble')};
  if(d<=BUBBLE_RANGE&&o.state!=='ko'&&o.y>-80){L.lock=o;L.sx=L.x;L.sz=L.z;L.sy=L.y;L.T=Math.max(10,Math.round(d/11));L.side=0;L.arc=14}
@@ -1586,7 +1595,7 @@ function updateF(f,o,inp){
  for(const k of STATUS_KEYS)if(f[k]>0){f[k]--;
   if(k==='dot'&&f[k]%30===0&&game.phase==='fight'&&f.hp>0&&f.state!=='ko'&&!invincible(f)){f.hp-=1;f.flash=Math.max(f.flash,3);const q=fp(f,0,.9*f.sp.scale);popText(q.x,q.y+.4,q.z,'-1','#ff7fb6',20);for(let i=0;i<3;i++)spark(q.x,q.y,q.z,'#ff8fc8');if(f.hp<=0)koNow(f===p1?p2:p1,f,-f.fx,-f.fz)}   // 뽀뽀 지속 피해
   if(k==='freeze'&&f[k]===0){const q=fp(f);for(let i=0;i<14;i++)spark(q.x,q.y,q.z,i%2?'#e8fbff':'#8fdcff');sfx('block')}}   // 얼음 깨짐
- if(f.breaker>0){f.breaker--;if(f.animT%6<3&&f.rig)f.flash=Math.max(f.flash,1)}if(f.chainT>0)f.chainT--;if(f.dirtMark>0)f.dirtMark--;
+ if(f.breaker>0){f.breaker--;if(f.animT%6<3&&f.rig)f.flash=Math.max(f.flash,1)}if(f.chainT>0)f.chainT--;if(f.dirtMark>0)f.dirtMark--;if(f.dropCD>0)f.dropCD--;
  const stopped=f.para>0||f.freeze>0;
  if(stopped||f.root>0)inp=Object.assign({},inp,{mx:0,mz:0,jump:false,run:false,dash:false});
  if(stopped||f.silence>0)inp=Object.assign({},inp,{bite:false,scratch:false,shove:false,special:false,sub:false});
@@ -1600,6 +1609,11 @@ function updateF(f,o,inp){
  const toward=mx*ux+mz*uz;                      // + : 상대 쪽으로, - : 상대 반대쪽(막기)
  f.holdBack=ml>.3&&toward<-.5*ml&&!inp.run&&!(f.para>0||f.freeze>0);            // 달리기 중엔 뒤로 가도 막기가 아니라 거리 벌리기
  const human=f.ctrl!=='ai';
+ if(f.guardCD>0)f.guardCD--;if(f.guardHitT>0)f.guardHitT--;else f.guardHits=0;
+ if(human&&f.ctrl!=='net'){const canG=grounded&&(f.state==='idle'||f.state==='walk'||f.state==='block')&&!(f.para>0||f.freeze>0);
+  if(inp.guard&&!f.guarding&&!(f.guardCD>0)&&canG){f.guarding=true;f.guardT=0;const q=fp(f,.3,.2);ring(q.x,q.y,q.z,'#8fd3ff',.9)}
+  if(f.guarding){f.guardT++;if(!inp.guardHeld||f.guardT>40||!canG){f.guarding=false;f.guardCD=36}else{face(f,o);if(f.guardT%5===0){const q=fp(f,.35,.2,(Math.random()-.5)*.6);spark(q.x,q.y,q.z,'#bfe6ff')}}}}
+ else f.guarding=false;
  if((neutral(f)||f.state==='block')&&grounded&&f.state!=='jump'){
   if(human){if(ml>.15){f.fx+=(mx/ml-f.fx)*.45;f.fz+=(mz/ml-f.fz)*.45}else{f.fx+=(ux-f.fx)*.12;f.fz+=(uz-f.fz)*.12}const n=Math.hypot(f.fx,f.fz)||1;f.fx/=n;f.fz/=n}
   else face(f,o)}
@@ -1607,7 +1621,7 @@ function updateF(f,o,inp){
  switch(f.state){
   case 'idle':case 'walk':
    if(inp.jump){f.vy=-f.sp.jump;f.y=-1;f.vx=mx*f.spd*1.15;f.vz=mz*f.spd*1.15;setState(f,'jump');sfx('jump');dust(f.x*PX,f.z*PX)}
-   else if(ml>.15){const run=!!inp.run;f.running=run;const sp=f.spd*(f.holdBack?.75:1)*(inp.dash?1.55:run?1.7:1);f.vx+=(mx*sp-f.vx)*.34;f.vz+=(mz*sp-f.vz)*.34;if(f.state!=='walk')setState(f,'walk');f.walkPh+=ml*sp*.085*(human||toward>=0?1:-1);
+   else if(ml>.15){const run=!!inp.run;f.running=run;const sp=f.spd*(f.guarding?.3:f.holdBack?.75:1)*(inp.dash?1.55:run?1.7:1);f.vx+=(mx*sp-f.vx)*.34;f.vz+=(mz*sp-f.vz)*.34;if(f.state!=='walk')setState(f,'walk');f.walkPh+=ml*sp*.085*(human||toward>=0?1:-1);
     if(f.animT%(run?5:9)===0){const g=fp(f,-.3);dust(g.x,g.z);sfx('step')}}
    else{f.vx*=.72;f.vz*=.72;if(f.state!=='idle')setState(f,'idle')}
    break;
@@ -1622,6 +1636,7 @@ function updateF(f,o,inp){
    if(sh&&f.st===A.s-1&&inp.shoveHeld&&f.charge<24){f.st--;f.charge++;if(f.charge%4===0){const q=fp(f,.3,0,(Math.random()-.5)*.6);spark(q.x,q.y,q.z,f.charge>=10?'#ffd27a':'#fff4d6')}if(f.charge===10){const q=fp(f);ring(q.x,q.y,q.z,'#ffd27a',.8);sfx('charge')}}
    if(sh&&f.st>=A.s&&f.st<A.s+2){const k=f.charge>=10?2:1.2;f.vx+=f.fx*k;f.vz+=f.fz*k}
    if(f.st<A.s+A.a&&!f.hitDone&&o.state!=='ko'){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1;f.fx+=(dx/d-f.fx)*.35;f.fz+=(dz/d-f.fz)*.35;const n=Math.hypot(f.fx,f.fz)||1;f.fx/=n;f.fz/=n}   // 공격 준비 중엔 상대를 계속 따라 돈다
+   if(f.sp.ranged&&!sh&&f.st===A.s&&!f.hitDone&&o.state!=='ko'&&!inReach(f,o,A.reach*1.05*reachMul(f),true)&&dist2(f,o)<=DROP_RANGE&&!(f.dropCD>0)){f.hitDone=true;fireDrop(f,o,A);f.dropCD=20;f.st-=8}   // 쏘고 나면 후딜이 조금 길다   // 수달: 멀면 작은 물방울을 쏜다
    if(f.st>=A.s&&f.st<A.s+A.a&&!f.hitDone&&inReach(f,o,A.reach*(f.atkMove?1.2:1.05)*reachMul(f),true)){f.hitDone=true;if(sh){const big=f.charge>=10;applyHit(f,o,big?4:2,big?27:12,big?28:16,{push:true,big,color:big?'#ffd27a':'#fff4d6',basic:true})}else applyHit(f,o,A.dmg,A.kb,A.stun,{basic:true})}
    if(f.state==='scratch'&&f.st===A.s){const q=fp(f,reachPx(f,.75)*PX,0);slashFX(q.x,q.y,q.z,scrDir(f))}
    if(f.st>=A.s+A.a+A.r)setState(f,f.y<0?'jump':'idle');break}
@@ -1651,7 +1666,7 @@ function separate(a,b){
 const SUB_RANGE={poop:300,carrot:9999,kick:290,stomp:210,kiss:170,beam:320,hair:150,dirt:240,roll:300,bubble:320};
 function proAI(f,o,s,a,inp,d,ux,uz,px,pz){
  const R=Math.random,stopped=o.para>0||o.freeze>0||o.state==='hit'||o.root>0;
- const rm=reachMul(f),biteR=reachPx(f,1.3*1.05*rm)+halfW(o)*.5,scrR=reachPx(f,1.1*1.05*rm)+halfW(o)*.5;
+ const rm=reachMul(f),biteR=f.sp.ranged?DROP_RANGE-30:reachPx(f,1.3*1.05*rm)+halfW(o)*.5,scrR=reachPx(f,1.1*1.05*rm)+halfW(o)*.5;
  const go=(mx,mz,t,extra)=>{a.plan=Object.assign({mx,mz},extra||{});a.thinkT=t;Object.assign(inp,a.plan);return true};
  const side=()=>go(px*a.side-ux*.2,pz*a.side-uz*.2,14,{run:true});
  // 막는 중이면 계속 막는다(뒤로 버티기)
@@ -1714,12 +1729,12 @@ function aiInput(f,o,lvl){
 }
 
 /* ---------- 입력: 1인(화살표/WASD 겸용) · 2인(P1 WASD, P2 화살표) · 가상 스틱 ---------- */
-const BTN=['bite','scratch','special','jump','shove','sub'];
+const BTN=['bite','scratch','special','jump','shove','sub','guard'];
 const held=[{},{}],pressQ=[{},{}],buf=[{},{}],joy={x:0,y:0};
 const KEYS={
- solo:{arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'up',w:'up',arrowdown:'down',s:'down',' ':'jump',i:'jump',j:'bite',z:'bite',k:'scratch',x:'scratch',u:'shove',h:'shove',o:'sub',p:'sub',l:'special',c:'special'},
- p1:{a:'left',d:'right',w:'up',s:'down',f:'jump',g:'bite',h:'scratch',t:'shove',y:'sub',r:'special'},
- p2:{arrowleft:'left',arrowright:'right',arrowup:'up',arrowdown:'down','/':'jump',j:'bite',k:'scratch',u:'shove',o:'sub',l:'special'}};
+ solo:{arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'up',w:'up',arrowdown:'down',s:'down',' ':'jump',i:'jump',j:'bite',z:'bite',k:'scratch',x:'scratch',u:'shove',h:'shove',o:'sub',p:'sub',l:'special',c:'special',b:'guard',n:'guard'},
+ p1:{a:'left',d:'right',w:'up',s:'down',f:'jump',g:'bite',h:'scratch',t:'shove',y:'sub',r:'special',e:'guard'},
+ p2:{arrowleft:'left',arrowright:'right',arrowup:'up',arrowdown:'down','/':'jump',j:'bite',k:'scratch',u:'shove',o:'sub',l:'special',i:'guard'}};
 function keySlots(e){const k=e.key.toLowerCase();const out=[];
  if(e.key==='Shift'){if(game.mode==='versus')out.push([e.code==='ShiftRight'?1:0,'run']);else out.push([0,'run']);return out}
  if(game.mode==='versus'){if(KEYS.p1[k])out.push([0,KEYS.p1[k]]);if(KEYS.p2[k])out.push([1,KEYS.p2[k]])}else if(KEYS.solo[k])out.push([0,KEYS.solo[k]]);return out}
@@ -1740,7 +1755,7 @@ function readInput(i){const H=held[i],P=pressQ[i],B=buf[i];
  for(const k of BTN){if(P[k]){B[k]=8;P[k]=false}else if(B[k]>0)B[k]--}
  let mx=(H.right?1:0)-(H.left?1:0),mz=(H.down?1:0)-(H.up?1:0),run=!!H.run;
  if(i===0){mx+=joy.x;mz+=joy.y;if(Math.hypot(joy.x,joy.y)>=.9)run=true}
- return{mx,mz,run,shoveHeld:!!H.shove,jump:B.jump>0,bite:B.bite>0,scratch:B.scratch>0,shove:B.shove>0,sub:B.sub>0,special:B.special>0}}
+ return{mx,mz,run,shoveHeld:!!H.shove,guardHeld:!!H.guard,guard:B.guard>0,jump:B.jump>0,bite:B.bite>0,scratch:B.scratch>0,shove:B.shove>0,sub:B.sub>0,special:B.special>0}}
 
 /* ---------- 포즈 ---------- */
 const BLEND={idle:.18,walk:.26,jump:.4,bite:.5,scratch:.5,shove:.5,special:.62,sub:.4,hit:.55,block:.45,ko:.5,win:.3};
@@ -1748,8 +1763,8 @@ function getPose(f){
  const p=basePose(),t=f.animT,st=f.st,sp=f.sp,air=f.y<-1;
  p.tail=Math.sin(t*(sp.key==='hotteok'||sp.key==='jjang'?.22:.1))*.3;
  switch(f.state){
-  case 'idle':p.bob=Math.sin(t*.09)*1.4;p.crouch=3;p.headDY=2;if(game.screen==='title'||game.screen==='select'){p.tail=Math.sin(t*.3)*.5;p.mouth=.25+Math.sin(t*.09)*.08;p.tongue=true;p.headYaw=Math.sin(t*.02)*.35}break;
-  case 'walk':if(f.running)gallopPose(p,f.walkPh*1.05,.9);else walkPose(p,f.walkPh,.55);break;
+  case 'idle':if(f.guarding){p.crouch=10;p.headDX=-8;p.headDY=6;p.headRot=.18;p.eyes='squint';p.lean=.05;break}p.bob=Math.sin(t*.09)*1.4;p.crouch=3;p.headDY=2;if(game.screen==='title'||game.screen==='select'){p.tail=Math.sin(t*.3)*.5;p.mouth=.25+Math.sin(t*.09)*.08;p.tongue=true;p.headYaw=Math.sin(t*.02)*.35}break;
+  case 'walk':if(f.guarding){walkPose(p,f.walkPh,.3);p.crouch=10;p.headDX=-8;p.headDY=6;p.headRot=.18;p.eyes='squint';break}if(f.running)gallopPose(p,f.walkPh*1.05,.9);else walkPose(p,f.walkPh,.55);break;
   case 'jump':tuckPose(p,f.vy);break;
   case 'bite':{if(f.atkMove&&!air)walkPose(p,f.walkPh,.5);const A=atkOf(f,'bite');if(st<A.s){p.headDX=-7*st/A.s;p.mouth=st/A.s;p.crouch=4}else if(st<A.s+A.a){p.headDX=22;p.mouth=.12;p.lean=.06}else{const k=1-(st-A.s-A.a)/A.r;p.headDX=22*k;p.mouth=.1*k}if(air)tuckPose(p,f.vy);break}
   case 'scratch':{if(f.atkMove&&!air){walkPose(p,f.walkPh,.5);p.auto=true}const A=atkOf(f,'scratch');let k;if(st<A.s){k=st/A.s;p.lean=-.28*k;p.legs[2]=[1.7*k,-.5*k]}else if(st<A.s+A.a){k=(st-A.s)/A.a;p.lean=-.28;p.legs[2]=[1.7-1.4*k,-.5+.7*k];p.mouth=.6}else{k=1-(st-A.s-A.a)/A.r;p.lean=-.28*k;p.legs[2]=[.3*k,.2*k];p.mouth=.3*k}
@@ -1833,7 +1848,7 @@ function setupHUD(){HUD.n[0].textContent=p1.sp.name+(game.mode==='versus'||game.
 /* ---------- 게임 흐름 ---------- */
 game={screen:'title',mode:'story',stage:0,round:1,wins:[0,0],phase:'ready',phaseT:0,timer:3600,hitstop:0,shake:0,slowmo:0,cutin:null,winner:null,loser:null,koType:'ko',meters:[0,0],subs:[0,0],pick:['hotteok','rabbit'],hero:'hotteok',cpuLvl:4,storyLvl:'mid'};
 const SPAWN={x:200,z:FX.cz};
-function clearFighters(){removeF(p1);removeF(p2);p1=p2=null;for(const pr of projectiles)(pr.kind==='ice'?killIce:killWave)(pr.obj);projectiles=[];for(const pr of lobs)killLob(pr.obj);lobs=[];for(const b of beams)killBeam(b.obj);beams=[];while(PARTS.length)killPart(PARTS.pop())}
+function clearFighters(){removeF(p1);removeF(p2);p1=p2=null;for(const pr of projectiles)(pr.kind==='ice'?killIce:pr.kind==='drop'?killLob:killWave)(pr.obj);projectiles=[];for(const pr of lobs)killLob(pr.obj);lobs=[];for(const b of beams)killBeam(b.obj);beams=[];while(PARTS.length)killPart(PARTS.pop())}
 function placePair(){p1.x=-SPAWN.x;p1.z=SPAWN.z;p2.x=SPAWN.x;p2.z=SPAWN.z;face(p1,p2);face(p2,p1);p1.rotY=p2.rotY=null;syncF(p1);syncF(p2)}
 function fighterKeys(){return game.mode==='story'?[game.hero,LADDER[game.stage]]:game.pick}
 function ctrl2(){return game.mode==='story'||game.mode==='cpu'?'ai':game.mode==='online'?'net':'p2'}
@@ -1869,9 +1884,9 @@ function fightCore(){
  separate(p1,p2);
  for(const pr of projectiles){pr.x+=pr.vx;pr.z+=pr.vz;pr.t++;const tg=pr.owner===p1?p2:p1;
   const ice=pr.kind==='ice';   // 얼음 미사일은 선상에 있으면 막기·아머 무시
-  if(!pr.dead&&dist2(pr,tg)<halfW(tg)+(ice?75:22)&&tg.y>(ice?-90:-55)&&!tg.invis&&tg.state!=='ko'){const m=Math.hypot(pr.vx,pr.vz);applyHit(pr.owner,tg,pr.dmg,6,26,{color:pr.color||'#ffe9a8',kx:pr.vx/m,kz:pr.vz/m,status:pr.status||{root:120},big:ice,unblockable:ice,armorBreak:ice});if(pr.kind==='ice'){const q=fp(tg);for(let i=0;i<12;i++)spark(q.x,q.y,q.z,i%2?'#ffffff':'#8fdcff')}pr.dead=true}
+  if(!pr.dead&&dist2(pr,tg)<halfW(tg)+(ice?75:22)&&tg.y>(ice?-90:-55)&&!tg.invis&&tg.state!=='ko'){const m=Math.hypot(pr.vx,pr.vz);const drop=pr.kind==='drop';applyHit(pr.owner,tg,pr.dmg,pr.kb||6,pr.stun||26,{color:pr.color||'#ffe9a8',kx:pr.vx/m,kz:pr.vz/m,status:pr.status===null?undefined:(pr.status||{root:120}),big:ice,unblockable:ice,armorBreak:ice,basic:!!pr.basic,pre:drop,noSub:drop});if(drop){const q=fp(tg,0,.6*tg.sp.scale);waterBurst(q.x,q.y,q.z,6,false);sfx('pop')}if(pr.kind==='ice'){const q=fp(tg);for(let i=0;i<12;i++)spark(q.x,q.y,q.z,i%2?'#ffffff':'#8fdcff')}pr.dead=true}
   if(pr.t>pr.life||Math.hypot(pr.x-FX.cx,pr.z-FX.cz)>FX.r+140)pr.dead=true;
-  if(pr.dead){(pr.kind==='ice'?killIce:killWave)(pr.obj)}else{pr.obj.position.set(pr.x*PX,-pr.y*PX,pr.z*PX);pr.obj.rotation.y=Math.atan2(-pr.vz,pr.vx);if(pr.kind==='ice'){pr.obj.rotation.x+=.3;if(pr.t%2===0){const s=mkSprite(TX.puff,C('#d8f6ff'),false);s.position.set(pr.x*PX,-pr.y*PX,pr.z*PX);addPart({obj:s,vy:.004,life:18,s0:.25,s1:.6,fade:true,op:.7})}}else{const k=1+Math.sin(pr.t*.5)*.15;pr.obj.scale.set(k,k*(1+pr.t*.01),k*(1+pr.t*.01))}}}
+  if(pr.dead){(pr.kind==='ice'?killIce:pr.kind==='drop'?killLob:killWave)(pr.obj)}else if(pr.kind==='drop'){pr.obj.position.set(pr.x*PX,-pr.y*PX,pr.z*PX)}else{pr.obj.position.set(pr.x*PX,-pr.y*PX,pr.z*PX);pr.obj.rotation.y=Math.atan2(-pr.vz,pr.vx);if(pr.kind==='ice'){pr.obj.rotation.x+=.3;if(pr.t%2===0){const s=mkSprite(TX.puff,C('#d8f6ff'),false);s.position.set(pr.x*PX,-pr.y*PX,pr.z*PX);addPart({obj:s,vy:.004,life:18,s0:.25,s1:.6,fade:true,op:.7})}}else{const k=1+Math.sin(pr.t*.5)*.15;pr.obj.scale.set(k,k*(1+pr.t*.01),k*(1+pr.t*.01))}}}
  projectiles=projectiles.filter(p=>!p.dead);
  updateLobs();
  if(game.phase==='ready'){if(game.phaseT===1)banner(game.round===3?'최종 라운드':'ROUND '+game.round,'',58);if(game.phaseT===8)sfx('bell');if(game.phaseT===59)banner('싸워라!','hot',42);if(game.phaseT>=100){game.phase='fight';game.phaseT=0}}
@@ -1906,8 +1921,8 @@ const ui=$('ui');
 function panel(html,pos){if(!html){ui.innerHTML='';return}ui.dataset.pos=pos||'center';ui.innerHTML='<div class="panel">'+html+'</div>';const b=ui.querySelector('button.primary');if(b&&!isTouch)b.focus({preventScroll:true})}
 function on(id,fn){const el=$(id);if(el)el.addEventListener('click',()=>{initAudio();if(actx&&actx.state==='suspended')actx.resume();fn()})}
 function howto(){return isTouch?'왼쪽 스틱으로 어디든 달린다(끝까지 기울이면 전력 질주). 공격하면 상대를 향해 돈다. 상대 반대쪽으로 움직이면 막기.<br>오른쪽 버튼: 점프·물기·할퀴기·밀치기·보조기·필살기. 3번 맞히면 보조기, 기력이 차면 필살기.'+(innerHeight>innerWidth?'<br>가로로 돌리면 경기장이 더 크게 보인다.':'')
- :'이동 <b>←</b><b>↑</b><b>↓</b><b>→</b>(또는 WASD) · 달리기 <b>Shift</b> · 점프 <b>Space</b> · 물기 <b>J</b> · 할퀴기 <b>K</b> · 밀치기 <b>U</b> · 보조기 <b>O</b> · 필살기 <b>L</b><br>공격하면 상대를 향해 돈다. 상대 반대쪽으로 움직이면 막기. 보조기는 3번 맞히면 1발, 맞는 중에도 쓸 수 있고 막을 수 없다.'}
-function keys2(){return '<div class="keys2"><div><h4>P1 (왼손)</h4>이동 <b>W</b><b>A</b><b>S</b><b>D</b> · 달리기 <b>왼쪽 Shift</b><br>점프 <b>F</b> · 물기 <b>G</b> · 할퀴기 <b>H</b><br>밀치기 <b>T</b> · 보조기 <b>Y</b> · 필살기 <b>R</b></div><div><h4>P2 (오른손)</h4>이동 <b>←</b><b>↑</b><b>↓</b><b>→</b> · 달리기 <b>오른쪽 Shift</b><br>점프 <b>/</b> · 물기 <b>J</b> · 할퀴기 <b>K</b><br>밀치기 <b>U</b> · 보조기 <b>O</b> · 필살기 <b>L</b></div></div>'}
+ :'이동 <b>←</b><b>↑</b><b>↓</b><b>→</b>(또는 WASD) · 달리기 <b>Shift</b> · 점프 <b>Space</b> · 물기 <b>J</b> · 할퀴기 <b>K</b> · 밀치기 <b>U</b> · 보조기 <b>O</b> · 필살기 <b>L</b> · 막기 <b>B</b><br>공격하면 상대를 향해 돈다. 막기는 앞에서 오는 기본 공격만, 누른 직후 0.7초 동안만 통하고 연속 3번 막으면 가드가 깨진다. 보조기는 3번 맞히면 1발, 맞는 중에도 쓸 수 있고 막을 수 없다.'}
+function keys2(){return '<div class="keys2"><div><h4>P1 (왼손)</h4>이동 <b>W</b><b>A</b><b>S</b><b>D</b> · 달리기 <b>왼쪽 Shift</b><br>점프 <b>F</b> · 물기 <b>G</b> · 할퀴기 <b>H</b><br>밀치기 <b>T</b> · 보조기 <b>Y</b> · 필살기 <b>R</b> · 막기 <b>E</b></div><div><h4>P2 (오른손)</h4>이동 <b>←</b><b>↑</b><b>↓</b><b>→</b> · 달리기 <b>오른쪽 Shift</b><br>점프 <b>/</b> · 물기 <b>J</b> · 할퀴기 <b>K</b><br>밀치기 <b>U</b> · 보조기 <b>O</b> · 필살기 <b>L</b> · 막기 <b>I</b></div></div>'}
 function soundRow(){return '<label class="snd"><input type="checkbox" id="snd" '+(soundOn?'checked':'')+'> 효과음</label> &nbsp; <label class="snd"><input type="checkbox" id="bgm" '+(musicOn?'checked':'')+'> 배경음</label>'}
 function wireSound(){const s=$('snd'),b=$('bgm');if(s)s.addEventListener('change',()=>{soundOn=s.checked;initAudio();MUSIC.setAmb()});if(b)b.addEventListener('change',()=>{initAudio();MUSIC.setOn(b.checked);if(b.checked&&!MUSIC.current)MUSIC.play(game.screen==='title'?'title':LADDER[game.stage])})}
 const ROSTER=['hotteok','jjang','poodle','rabbit','raccoon','cat','otter','gorani','deer','boar'];
@@ -1968,7 +1983,7 @@ function showSelect(mode,opts){
  const hint=()=>opts.onlyMine?(opts.status||'상대도 고르는 중'):turn===0?(cpu?'고르면 상대 차례로 넘어갑니다':'고르면 P2 차례로 넘어갑니다'):'고르면 시작할 수 있습니다';
  const render=()=>{clearFighters();p1=makeF(picks[0],-170,FX.cz,'p1');p2=makeF(opts.onlyMine?(opts.theirPick||picks[1]):picks[1],170,FX.cz,'p2');syncF(p1);syncF(p2);
   const grid=ROSTER.map(k=>'<button data-k="'+k+'" class="'+(picks[0]===k?'sel':'')+(!opts.onlyMine&&picks[1]===k?' sel2':'')+'"><img class="face" src="'+portrait(k)+'" alt="">'+SP[k].name+'<small>'+SP[k].subName+'</small></button>').join('');
-  const S=SP[last],info='<div class="skills"><b>'+S.name+'</b><p><span>필살기</span>'+S.spName+' — '+S.spShort+'</p><p><span>보조기</span>'+S.subName+' — '+S.subShort+'</p></div>';
+  const S=SP[last],info='<div class="skills"><b>'+S.name+'</b><p><span>필살기</span>'+S.spName+' — '+S.spShort+'</p><p><span>보조기</span>'+S.subName+' — '+S.subShort+'</p>'+(S.basicNote?'<p><span>기본</span>'+S.basicNote.replace(/^기본 공격: /,'')+'</p>':'')+'</div>';
   const lv=cpu?'<div class="row lv"><span class="lvl">난이도</span>'+[['하',0],['중',4],['상',9]].map(([t,v])=>'<button class="'+(game.cpuLvl===v?'primary':'secondary')+'" data-lv="'+v+'">'+t+'</button>').join('')+'</div>':'';
   panel('<p class="eyebrow">'+({versus:'2인 대전 · 같은 키보드',cpu:'1:1 오토봇 대전'}[mode]||('온라인 대전'+(opts.code?' · 방 '+opts.code:'')))+'</p><h2>'+who()+' 선택<small id="selHint">'+hint()+'</small></h2>'+lv+'<div class="pick">'+grid+'</div>'+info+
    (turn>=maxTurn-1?'<div class="row"><button class="primary" id="bGo">'+(opts.onlyMine?'준비 완료':'싸우자!')+'</button><button class="secondary" id="bBack">뒤로</button></div>':'<div class="row"><button class="secondary" id="bBack">뒤로</button></div>')+(mode==='versus'?keys2():''),'top');
