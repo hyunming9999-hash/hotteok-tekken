@@ -309,7 +309,7 @@ SP.otter={name:'수달',title:'계곡의 장난꾸러기',bodyW:104,bodyH:36,leg
  spName:'워터제트',spDesc:'꼬리로 서서 무적 회오리가 되어 3초 동안 빠르게 돌며 물을 뿌린다. 방향키로 몰 수 있고 막을 수 없다. 처음엔 세지만 시간이 지날수록 물줄기 피해가 약해진다. 쓰는 동안 완전 무적.',
  sub:'bubble',subName:'물폭탄',subBtn:'물폭탄',subDesc:'물폭탄을 머리 위로 들어 상대에게 던진다. 맵 폭의 1/4 안에 있으면 따라가서 무조건 맞고, 맞은 상대는 피해 7을 입고 2초 동안 느려지며 공격도 기술도 못 쓴다. 멀어서 빗나가면 4초 안에 한 발 더 던질 수 있다.',
  spShort:'무적 회오리 3초 · 빠르게 방향키로 조종 · 갈수록 피해 약해짐 · 막기 불가',subShort:'머리 위로 들어 던지기 · 가까운 거리(맵 1/4)면 무조건 명중 · 맞으면 피해 7 + 2초 둔화·공격 봉인 · 빗나가면 한 발 더',
- basicNote:'기본 공격: 320px 안이면 물방울이 따라가 무조건 맞는다(물기 1.5 / 할퀴기 1, 3번 맞히면 보조기 1칸) · 가까우면 물기 3.5 / 할퀴기 2.5 · 기본 공격 5번 맞힐 때마다 상대를 뒤로 밀어낸다',
+ basicNote:'기본 공격: 320px 안이면 물방울이 따라가 무조건 맞는다(물기 1.8 / 할퀴기 0.5, 3번 맞히면 보조기 1칸) · 가까우면 물기 3.5 / 할퀴기 2.5 · 기본 공격 5번 맞힐 때마다 상대를 뒤로 밀어낸다',
  fact:'수달은 물갈퀴 발과 두꺼운 꼬리로 헤엄치고 매끈한 털이 물을 튕겨 낸다. 천연기념물이자 멸종위기 야생생물 1급이다.'};
 for(const k in SP)SP[k].key=k;
 const LADDER=['rabbit','raccoon','cat','gorani','deer','otter','boar'];
@@ -1525,7 +1525,7 @@ function kissFire(f,o,i){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=d
 const BUBBLE_RANGE=330,DROP_RANGE=320,BOMB_RANGE=FX.r/2;
 /* 수달 기본 공격(원거리): 상대를 겨눠 작은 물방울을 곧게 쏜다. 피해는 기본 공격과 같고(0.5배), 앞에서 막을 수 있다 */
 function fireDrop(f,o,A){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d,k=halfW(f)*.8;const g=makeLob('bubble');g.scale.setScalar(.42);
- projectiles.push({kind:'drop',x:f.x+ux*k,z:f.z+uz*k,y:-40,vx:ux*11,vz:uz*11,owner:f,dmg:f.state==='bite'?1:.5,kb:1,stun:3,status:null,life:60,t:0,obj:g,color:'#9fe8ff',basic:true});sfx('bubble')}
+ projectiles.push({kind:'drop',x:f.x+ux*k,z:f.z+uz*k,y:-40,vx:ux*11,vz:uz*11,owner:f,dmg:f.state==='bite'?1.8:.5,kb:1,stun:3,status:null,life:60,t:0,obj:g,color:'#9fe8ff',basic:true});sfx('bubble')}
 function bubbleFire(f,o){const dx=o.x-f.x,dz=o.z-f.z,d=Math.hypot(dx,dz)||1,ux=dx/d,uz=dz/d;f.pdx=ux;f.pdz=uz;const r0=halfW(f)*.7;
  const L={kind:'bubble',x:f.x+ux*r0,z:f.z+uz*r0,y:-46,owner:f,dmg:VSM()?4:6.5,t:0,obj:makeLob('bubble')};
  if(d<=BUBBLE_RANGE&&o.state!=='ko'&&o.y>-80){L.lock=o;L.sx=L.x;L.sz=L.z;L.sy=L.y;L.T=Math.max(10,Math.round(d/11));L.side=0;L.arc=14}
@@ -1837,8 +1837,20 @@ function iconTex(k){if(ICON_TX[k])return ICON_TX[k];return ICON_TX[k]=tex(128,12
  else if(k==='heart'){g.fillStyle='#ff6fae';g.strokeStyle='#7a0f3e';g.lineWidth=6;g.beginPath();g.moveTo(64,112);g.bezierCurveTo(8,70,14,18,64,40);g.bezierCurveTo(114,18,120,70,64,112);g.closePath();g.stroke();g.fill()}
  else if(k==='fear'){g.fillStyle='#f0e6ff';g.strokeStyle='#4a2a7a';g.lineWidth=8;g.beginPath();g.moveTo(50,12);g.lineTo(78,12);g.lineTo(70,80);g.lineTo(58,80);g.closePath();g.fill();g.stroke();g.beginPath();g.arc(64,104,12,0,TAU);g.fill();g.stroke()}
  else if(k==='snail'){g.fillStyle='#ffd1e6';g.strokeStyle='#6a2a48';g.lineWidth=6;g.beginPath();g.arc(70,62,36,0,TAU);g.fill();g.stroke();g.beginPath();g.arc(70,62,20,0,5);g.stroke();g.beginPath();g.ellipse(58,104,48,12,0,0,TAU);g.fill();g.stroke()}})}
+/* 플레이어 표식: 사람이 조종하는 동물 머리 위에 'P1'(주황)·'P2'(파랑) 화살표가 둥실둥실 떠 있다. 온라인에선 내 쪽이 '나' */
+const ARROW_TX={};
+function arrowTex(label,col){const k=label+col;if(ARROW_TX[k])return ARROW_TX[k];return ARROW_TX[k]=tex(160,160,(g,w,h)=>{g.lineJoin='round';g.lineCap='round';
+ g.fillStyle=col;g.strokeStyle='#22202a';g.lineWidth=9;g.beginPath();g.moveTo(44,86);g.lineTo(116,86);g.lineTo(80,142);g.closePath();g.fill();g.stroke();
+ g.beginPath();g.roundRect?g.roundRect(22,14,116,62,18):g.rect(22,14,116,62);g.fill();g.stroke();
+ g.fillStyle='#ffffff';g.font='bold 44px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(label,80,47)})}
+function playerArrow(f){if(game.mode==='story'||game.mode==='cpu')return f===p1&&!game.p1bot?['P1','#ff9f3a']:null;
+ if(game.mode==='online')return f===p1?['나','#ff9f3a']:['상대','#5fb3ff'];
+ if(game.mode==='versus')return f===p1?(game.p1bot?null:['P1','#ff9f3a']):(game.p2bot?null:['P2','#5fb3ff']);return null}
 function statusFX(f){const r=f.rig;let s=f.sx;
- if(!s){s=f.sx={stars:[],icon:null,iconK:'',ring:null,ice:null};}
+ if(!s){s=f.sx={stars:[],icon:null,iconK:'',ring:null,ice:null,arrow:null,arrowK:''};}
+ const pa=game.screen==='fight'&&!f.invis?playerArrow(f):null,ak=pa?pa[0]+pa[1]:'';
+ if(ak!==s.arrowK){if(s.arrow){beach.remove(s.arrow);s.arrow=null}s.arrowK=ak;if(pa){s.arrow=mkSprite(arrowTex(pa[0],pa[1]),undefined,false);s.arrow.scale.set(.95,.95,1);beach.add(s.arrow)}}
+ if(s.arrow){const top=fp(f,0,1.25*f.sp.scale+.15);s.arrow.position.set(top.x,top.y+.78+Math.sin(tick*.12)*.07,top.z)}
  const head=fp(f,0,1.25*f.sp.scale+.15),feet={x:f.x*PX,z:f.z*PX},show=game.screen==='fight'&&!f.invis&&f.state!=='ko';
  // 기절·마비: 머리 위로 노란 별 세 개가 빙글빙글
  const st=show&&f.para>0;
@@ -1863,7 +1875,7 @@ function statusFX(f){const r=f.rig;let s=f.sx;
  if(fr&&!s.ice)s.ice=makeIceBlock();
  if(!fr&&s.ice){beach.remove(s.ice);s.ice=null}
  if(s.ice){const c=fp(f,0,0);s.ice.position.set(c.x,c.y,c.z);s.ice.scale.set(r.bw*.72,(r.baseY+r.hy)*.62+.1,r.bw*.5);s.ice.rotation.y=r.root.rotation.y}}
-function clearStatusFX(f){const s=f&&f.sx;if(!s)return;for(const sp of s.stars)beach.remove(sp);if(s.icon)beach.remove(s.icon);if(s.ring)beach.remove(s.ring);if(s.ice)beach.remove(s.ice);f.sx=null}
+function clearStatusFX(f){const s=f&&f.sx;if(!s)return;for(const sp of s.stars)beach.remove(sp);if(s.icon)beach.remove(s.icon);if(s.arrow)beach.remove(s.arrow);if(s.ring)beach.remove(s.ring);if(s.ice)beach.remove(s.ice);f.sx=null}
 /* 몸 색: 얼음 하늘색 · 둔화 분홍 · 공격력 반감 붉은 맥동 · 기절 노란 맥동 · 속박 청록 */
 function statusTint(f){const r=f.rig,p=.5+.5*Math.sin(tick*.25);
  const t=f.freeze>0?['#7fd6ff',.55]:f.weak>0?['#ff3b2a',.08+.14*p]:f.slow>0?['#ff6fb0',.12+.1*p]:f.para>0?['#ffe45c',.15+.2*p]:f.root>0?['#4fd8ff',.15+.1*p]:f.silence>0?['#9a5cff',.15+.1*p]:f.fear>0?['#c8b0ff',.1+.12*p]:null;
